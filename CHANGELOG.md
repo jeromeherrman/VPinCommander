@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-07-14
 
 ### Added
 - Cabinet Health Report v2: the Health page now also reports outdated tables (VPS comparison), missing PuP-Packs and missing DOF coverage (only when the cabinet uses them), tables without any media, duplicate tables and duplicate media, and tables saved with an old Visual Pinball format. Findings are filterable by category as well as severity.
