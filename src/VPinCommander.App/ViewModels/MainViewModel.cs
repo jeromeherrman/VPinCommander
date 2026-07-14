@@ -16,12 +16,13 @@ public partial class MainViewModel : ObservableObject
         RomsViewModel roms,
         HealthViewModel health,
         UpdatesViewModel updates,
+        InstallerViewModel installer,
         PopperViewModel popper,
         PinballXViewModel pinballX,
         PinballYViewModel pinballY,
         SettingsViewModel settings)
     {
-        Pages = new PageViewModel[] { dashboard, tables, media, roms, health, updates, popper, pinballX, pinballY, settings };
+        Pages = new PageViewModel[] { dashboard, tables, media, roms, health, updates, installer, popper, pinballX, pinballY, settings };
         CurrentPage = dashboard;
     }
 

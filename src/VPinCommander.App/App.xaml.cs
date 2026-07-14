@@ -9,6 +9,7 @@ using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
 using System.Net.Http;
 using VPinCommander.Core.Services;
+using VPinCommander.Core.Services.Installer;
 using VPinCommander.Core.Settings;
 using VPinCommander.Core.Updates;
 using VPinCommander.Data;
@@ -60,6 +61,7 @@ public partial class App : Application
                 services.AddSingleton<IExcelExporter, ExcelExporter>();
                 services.AddSingleton<IBackupService, BackupService>();
                 services.AddSingleton<ICloudSyncService, CloudSyncService>();
+                services.AddSingleton<IContentInstaller, ContentInstaller>();
                 services.AddSingleton(new HttpClient
                 {
                     DefaultRequestHeaders = { { "User-Agent", "VPinCommander" } },
@@ -79,6 +81,7 @@ public partial class App : Application
                 services.AddSingleton<MediaViewModel>();
                 services.AddSingleton<RomsViewModel>();
                 services.AddSingleton<UpdatesViewModel>();
+                services.AddSingleton<InstallerViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();

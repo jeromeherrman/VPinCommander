@@ -47,6 +47,10 @@ Content operations are conservative by design: `MediaManager.AssignToTableAsync`
 - **Backup/restore** — `BackupService` checkpoints the WAL, zips the database + settings; restore validates the zip, keeps a `.pre-restore` copy, and requires an app restart.
 - **Cloud sync** — `CloudSyncService` layers on the backup service: push writes the sync zip + a manifest (when/which machine) into any folder the user's cloud client already syncs; pull restores from it. No accounts, no server.
 
+## Content installer
+
+`ContentInstaller` (Core) powers the one-click Installer page. It classifies user-downloaded files by extension and, for archives, by inspecting entries (table files, `.directb2s`, `.pup`, ROM chip images like `.bin`/`.u##`, altcolor formats, `altsound.csv` + audio, media), then resolves targets from settings: tables/backglasses → first table folder, ROM zips copied whole → first ROM folder, altcolor/altsound → `<VPinMAME>\altcolor|altsound\<rom>` (ROM name from the archive's single root folder, else the file stem), PuP-Packs → `<PinUP>\PUPVideos`. Installation never overwrites existing files and rejects archive entries that would escape the target folder (zip slip). Downloading is deliberately not automated: the community sites are login-gated and ROMs are copyrighted, so the browser downloads and the app organizes.
+
 ## Front-end integrations
 
 `IFrontEndIntegration` (Core) is the adapter seam; adapters live in Data:

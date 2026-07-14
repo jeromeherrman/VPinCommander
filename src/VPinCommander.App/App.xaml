@@ -32,6 +32,9 @@
     <DataTemplate DataType="{x:Type vm:UpdatesViewModel}">
       <views:UpdatesView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:InstallerViewModel}">
+      <views:InstallerView />
+    </DataTemplate>
     <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
       <views:SettingsView />
     </DataTemplate>

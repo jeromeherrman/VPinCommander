@@ -4,6 +4,7 @@
 
 ### Added
 - PinballY integration: imports games from PinballY's PinballX-compatible XML databases, resolving system names and table paths from `Settings.txt`. Third front-end page alongside PinUP Popper and PinballX.
+- One-click Installer page: add downloaded files (or scan the Downloads folder) and each piece — table, backglass, PinMAME ROM, PuP-Pack, DMD colorization, AltSound, media — is recognized automatically and installed to its proper cabinet folder. Existing files are never overwritten, unsafe archive paths are rejected, and downloading itself stays in the browser (community sites are login-gated; ROMs are copyrighted).
 
 ## 0.1.1 — 2026-07-14
 
