@@ -1,0 +1,64 @@
+<UserControl x:Class="VPinCommander.App.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <Style x:Key="StatCard" TargetType="Border">
+      <Setter Property="Background" Value="#F4F4F8" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="20" />
+      <Setter Property="Margin" Value="0,0,16,0" />
+      <Setter Property="MinWidth" Value="150" />
+    </Style>
+    <Style x:Key="StatNumber" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="32" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style x:Key="StatLabel" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="#666" />
+    </Style>
+  </UserControl.Resources>
+
+  <StackPanel>
+    <TextBlock Text="Dashboard" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,20" />
+
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+      <Border Style="{StaticResource StatCard}">
+        <StackPanel>
+          <TextBlock Text="{Binding TableCount}" Style="{StaticResource StatNumber}" />
+          <TextBlock Text="Tables" Style="{StaticResource StatLabel}" />
+        </StackPanel>
+      </Border>
+      <Border Style="{StaticResource StatCard}">
+        <StackPanel>
+          <TextBlock Text="{Binding RomCount}" Style="{StaticResource StatNumber}" />
+          <TextBlock Text="ROMs" Style="{StaticResource StatLabel}" />
+        </StackPanel>
+      </Border>
+      <Border Style="{StaticResource StatCard}">
+        <StackPanel>
+          <TextBlock Text="{Binding MediaCount}" Style="{StaticResource StatNumber}" />
+          <TextBlock Text="Media files" Style="{StaticResource StatLabel}" />
+        </StackPanel>
+      </Border>
+      <Border Style="{StaticResource StatCard}">
+        <StackPanel>
+          <TextBlock Text="{Binding MissingCount}" Style="{StaticResource StatNumber}" Foreground="#C0392B" />
+          <TextBlock Text="Missing files" Style="{StaticResource StatLabel}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+      <Button Content="Scan cabinet"
+              Command="{Binding ScanCommand}"
+              Padding="20,10" FontSize="14" FontWeight="SemiBold" />
+      <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#666">
+        <Run Text="Last scan:" />
+        <Run Text="{Binding LastScanText, Mode=OneWay}" />
+      </TextBlock>
+    </StackPanel>
+
+    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="#444" />
+  </StackPanel>
+</UserControl>
