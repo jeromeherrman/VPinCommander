@@ -18,6 +18,9 @@
       <DataGrid.Columns>
         <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
         <DataGridTextColumn Header="Format" Binding="{Binding Format}" Width="Auto" />
+        <DataGridTextColumn Header="ROM" Binding="{Binding RomName}" Width="Auto" />
+        <DataGridTextColumn Header="Version" Binding="{Binding TableVersion}" Width="Auto" />
+        <DataGridTextColumn Header="Author" Binding="{Binding Author}" Width="Auto" />
         <DataGridTextColumn Header="Size (bytes)" Binding="{Binding FileSizeBytes, StringFormat=N0}" Width="Auto" />
         <DataGridTextColumn Header="Modified (UTC)" Binding="{Binding FileModifiedUtc, StringFormat=g}" Width="Auto" />
         <DataGridCheckBoxColumn Header="Missing" Binding="{Binding IsMissing}" Width="Auto" />

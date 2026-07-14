@@ -91,6 +91,9 @@ public sealed class InventoryStore : IInventoryStore
                 table.FileModifiedUtc = scanned.ModifiedUtc;
                 table.LastSeenUtc = now;
                 table.IsMissing = false;
+                table.RomName = scanned.RomName;
+                table.Author = scanned.Author;
+                table.TableVersion = scanned.TableVersion;
             }
             else
             {
@@ -104,6 +107,9 @@ public sealed class InventoryStore : IInventoryStore
                     FileModifiedUtc = scanned.ModifiedUtc,
                     FirstSeenUtc = now,
                     LastSeenUtc = now,
+                    RomName = scanned.RomName,
+                    Author = scanned.Author,
+                    TableVersion = scanned.TableVersion,
                 });
             }
         }

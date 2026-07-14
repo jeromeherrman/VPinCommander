@@ -10,6 +10,7 @@ using VPinCommander.Core.Scanning;
 using VPinCommander.Core.Settings;
 using VPinCommander.Data;
 using VPinCommander.Data.Integrations;
+using VPinCommander.Data.Vpx;
 
 namespace VPinCommander.App;
 
@@ -23,6 +24,7 @@ public partial class App : Application
             .ConfigureServices(services =>
             {
                 services.AddSingleton<ISettingsService, SettingsService>();
+                services.AddSingleton<IVpxMetadataReader, VpxMetadataReader>();
                 services.AddSingleton<IInventoryScanner, InventoryScanner>();
                 services.AddDbContextFactory<VPinDbContext>(options =>
                     options.UseSqlite($"Data Source={AppPaths.DatabasePath}"));
@@ -34,6 +36,7 @@ public partial class App : Application
                 services.AddSingleton<TablesViewModel>();
                 services.AddSingleton<PopperViewModel>();
                 services.AddSingleton<PinballXViewModel>();
+                services.AddSingleton<HealthViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();

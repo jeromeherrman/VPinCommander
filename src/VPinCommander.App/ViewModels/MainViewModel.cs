@@ -12,11 +12,12 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel(
         DashboardViewModel dashboard,
         TablesViewModel tables,
+        HealthViewModel health,
         PopperViewModel popper,
         PinballXViewModel pinballX,
         SettingsViewModel settings)
     {
-        Pages = new PageViewModel[] { dashboard, tables, popper, pinballX, settings };
+        Pages = new PageViewModel[] { dashboard, tables, health, popper, pinballX, settings };
         CurrentPage = dashboard;
     }
 

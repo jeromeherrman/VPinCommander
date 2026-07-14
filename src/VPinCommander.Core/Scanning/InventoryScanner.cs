@@ -5,6 +5,13 @@ namespace VPinCommander.Core.Scanning;
 
 public sealed class InventoryScanner : IInventoryScanner
 {
+    private readonly IVpxMetadataReader? _metadataReader;
+
+    public InventoryScanner(IVpxMetadataReader? metadataReader = null)
+    {
+        _metadataReader = metadataReader;
+    }
+
     private static readonly Dictionary<string, TableFormat> TableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         [".vpx"] = TableFormat.VisualPinballX,
@@ -30,7 +37,7 @@ public sealed class InventoryScanner : IInventoryScanner
     public Task<ScanResult> ScanAsync(AppSettings settings, IProgress<string>? progress = null, CancellationToken ct = default)
         => Task.Run(() => Scan(settings, progress, ct), ct);
 
-    private static ScanResult Scan(AppSettings settings, IProgress<string>? progress, CancellationToken ct)
+    private ScanResult Scan(AppSettings settings, IProgress<string>? progress, CancellationToken ct)
     {
         var result = new ScanResult { StartedUtc = DateTime.UtcNow };
 
@@ -45,13 +52,19 @@ public sealed class InventoryScanner : IInventoryScanner
                     continue;
 
                 var info = new FileInfo(file);
+                var metadata = format == TableFormat.VisualPinballX
+                    ? _metadataReader?.Read(info.FullName)
+                    : null;
                 result.Tables.Add(new ScannedTable(
                     info.FullName,
                     info.Name,
                     Path.GetFileNameWithoutExtension(info.Name),
                     format,
                     info.Length,
-                    info.LastWriteTimeUtc));
+                    info.LastWriteTimeUtc,
+                    RomName: metadata?.RomName,
+                    Author: metadata?.AuthorName,
+                    TableVersion: metadata?.TableVersion));
             }
         }
 

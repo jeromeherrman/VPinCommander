@@ -7,11 +7,11 @@
 - [x] WPF UI shell: Dashboard, Tables, Settings
 - [x] Settings persistence (scan folders)
 
-## Milestone 2 — Make it useful on a real cabinet (in progress)
+## Milestone 2 — Make it useful on a real cabinet (done)
 - [x] PinUP Popper integration (read `PUPDatabase.db`, match games to inventory)
 - [x] PinballX integration (XML database import)
-- [ ] Table ↔ ROM ↔ media matching via VPX script parsing (`cGameName`)
-- [ ] Health report v1: missing ROMs, missing media, orphaned files
+- [x] Table ↔ ROM ↔ media matching via VPX script parsing (`cGameName`)
+- [x] Health report v1: missing ROMs, missing media, orphaned files
 
 ## Milestone 3 — Content management
 - [ ] Artwork/media management (preview, rename to convention, assign to table)

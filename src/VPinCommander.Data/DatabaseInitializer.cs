@@ -11,7 +11,7 @@ namespace VPinCommander.Data;
 /// </summary>
 public static class DatabaseInitializer
 {
-    public const long SchemaVersion = 2;
+    public const long SchemaVersion = 3;
 
     /// <summary>Returns the backup path when an outdated database had to be recreated, otherwise null.</summary>
     public static string? Initialize(IDbContextFactory<VPinDbContext> factory, string dbPath)

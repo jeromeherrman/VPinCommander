@@ -26,8 +26,14 @@ public class GameTable
     /// <summary>True when the file was present in a previous scan but is gone now.</summary>
     public bool IsMissing { get; set; }
 
-    /// <summary>PinMAME ROM name this table uses, once matching/script parsing fills it in.</summary>
+    /// <summary>PinMAME ROM name the table's script declares (cGameName), when it could be parsed.</summary>
     public string? RomName { get; set; }
+
+    /// <summary>Author from the table's TableInfo metadata, when present.</summary>
+    public string? Author { get; set; }
+
+    /// <summary>Version from the table's TableInfo metadata, when present.</summary>
+    public string? TableVersion { get; set; }
 }
 
 public enum TableFormat

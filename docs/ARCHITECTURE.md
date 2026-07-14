@@ -27,6 +27,12 @@ Dependency rule: `App → Data → Core`. Core never references Data or App, so 
 
 Matching between tables ↔ ROMs ↔ media is filename-stem based in M1. Later milestones will parse the table script from the VPX OLE compound file to read the real `cGameName` ROM reference.
 
+## VPX metadata & health
+
+A `.vpx` table is an OLE compound file. `VpxMetadataReader` (Data, using OpenMcdf) opens it read-only, walks the BIFF records of the `GameStg\GameData` stream to the `CODE` record, and extracts the PinMAME ROM the script declares (`cGameName = "..."`), plus author/version from the `TableInfo` streams. The scanner runs this for every VPX table, so `GameTable.RomName` reflects what the table actually needs — not a filename guess.
+
+`HealthReportBuilder` (Core, pure) turns the stored inventory into findings: tables whose declared ROM is absent and front-end games without table files (errors), files that vanished since a previous scan (warnings), unreferenced ROMs and unassigned media (info).
+
 ## Front-end integrations
 
 `IFrontEndIntegration` (Core) is the adapter seam; adapters live in Data:

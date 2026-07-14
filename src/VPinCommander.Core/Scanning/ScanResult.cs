@@ -2,7 +2,16 @@ using VPinCommander.Core.Models;
 
 namespace VPinCommander.Core.Scanning;
 
-public sealed record ScannedTable(string FilePath, string FileName, string Name, TableFormat Format, long SizeBytes, DateTime ModifiedUtc);
+public sealed record ScannedTable(
+    string FilePath,
+    string FileName,
+    string Name,
+    TableFormat Format,
+    long SizeBytes,
+    DateTime ModifiedUtc,
+    string? RomName = null,
+    string? Author = null,
+    string? TableVersion = null);
 
 public sealed record ScannedRom(string FilePath, string Name, long SizeBytes, DateTime ModifiedUtc);
 

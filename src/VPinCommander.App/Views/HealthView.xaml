@@ -1,0 +1,46 @@
+<UserControl x:Class="VPinCommander.App.Views.HealthView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+      <TextBlock Text="Health" FontSize="24" FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Summary}" Foreground="#666" Margin="0,4,0,12" TextWrapping="Wrap" />
+      <StackPanel Orientation="Horizontal">
+        <Button Content="Run health check" Command="{Binding RefreshCommand}" Padding="20,10" FontWeight="SemiBold" />
+        <TextBlock Text="Show:" VerticalAlignment="Center" Margin="24,0,8,0" Foreground="#666" />
+        <ComboBox ItemsSource="{Binding FilterOptions}"
+                  SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"
+                  MinWidth="140" VerticalAlignment="Center" />
+      </StackPanel>
+    </StackPanel>
+
+    <DataGrid ItemsSource="{Binding Findings}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              GridLinesVisibility="Horizontal"
+              HeadersVisibility="Column">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="Auto" />
+        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto" />
+        <DataGridTextColumn Header="Item" Binding="{Binding Item}" Width="*" />
+        <DataGridTextColumn Header="Detail" Binding="{Binding Detail}" Width="3*" />
+      </DataGrid.Columns>
+      <DataGrid.RowStyle>
+        <Style TargetType="DataGridRow">
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding Severity}" Value="Error">
+              <Setter Property="Foreground" Value="#C0392B" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Severity}" Value="Warning">
+              <Setter Property="Foreground" Value="#B9770E" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Severity}" Value="Info">
+              <Setter Property="Foreground" Value="#707070" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.RowStyle>
+    </DataGrid>
+  </DockPanel>
+</UserControl>
