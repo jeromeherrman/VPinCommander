@@ -11,7 +11,8 @@ public sealed record ScannedTable(
     DateTime ModifiedUtc,
     string? RomName = null,
     string? Author = null,
-    string? TableVersion = null);
+    string? TableVersion = null,
+    TableDependencies Dependencies = default);
 
 public sealed record ScannedRom(string FilePath, string Name, long SizeBytes, DateTime ModifiedUtc);
 

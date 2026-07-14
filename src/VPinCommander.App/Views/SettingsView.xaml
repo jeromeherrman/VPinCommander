@@ -42,6 +42,12 @@
       <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
                Text="{Binding PinballXFolderText, UpdateSourceTrigger=PropertyChanged}" />
 
+      <TextBlock Text="DOF config folder" FontWeight="SemiBold" />
+      <TextBlock Text="Folder containing directoutputconfig*.ini from the DOF Config Tool (e.g. C:\DirectOutput). Leave empty to auto-detect."
+                 Foreground="#666" FontSize="12" Margin="0,2,0,0" />
+      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
+               Text="{Binding DofFolderText, UpdateSourceTrigger=PropertyChanged}" />
+
       <StackPanel Orientation="Horizontal">
         <Button Content="Save settings" Command="{Binding SaveCommand}" Padding="20,10" FontWeight="SemiBold" />
         <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#2E7D32" />

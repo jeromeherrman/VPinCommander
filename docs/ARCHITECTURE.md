@@ -31,7 +31,13 @@ Matching between tables ↔ ROMs ↔ media is filename-stem based in M1. Later m
 
 A `.vpx` table is an OLE compound file. `VpxMetadataReader` (Data, using OpenMcdf) opens it read-only, walks the BIFF records of the `GameStg\GameData` stream to the `CODE` record, and extracts the PinMAME ROM the script declares (`cGameName = "..."`), plus author/version from the `TableInfo` streams. The scanner runs this for every VPX table, so `GameTable.RomName` reflects what the table actually needs — not a filename guess.
 
-`HealthReportBuilder` (Core, pure) turns the stored inventory into findings: tables whose declared ROM is absent and front-end games without table files (errors), files that vanished since a previous scan (warnings), unreferenced ROMs and unassigned media (info).
+`HealthReportBuilder` (Core, pure) turns the stored inventory into findings: tables whose declared ROM is absent and front-end games without table files (errors), duplicate ROMs and files that vanished since a previous scan (warnings), unreferenced ROMs, unassigned media, and VPX tables without a backglass (info).
+
+## Dependencies & content management
+
+`DependencyProbe` (Core) runs during every scan and stamps each table with what it has on this cabinet: a `.directb2s` backglass next to the table file, a PuP-Pack folder under `PUPVideos\<rom>`, `altcolor`/`altsound` folders under the VPinMAME directory (derived as the parent of each ROM folder), and DOF coverage (`DofConfigReader` parses `directoutputconfig*.ini` rows into a ROM set once per scan).
+
+Content operations are conservative by design: `MediaManager.AssignToTableAsync` renames a media file to its table's name (never moves it across folders, never overwrites); `RomManager.QuarantineAsync` moves ROM files to `%APPDATA%\VPinCommander\Quarantine` instead of deleting, so every destructive-looking action is reversible by hand.
 
 ## Front-end integrations
 

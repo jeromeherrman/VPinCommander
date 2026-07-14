@@ -20,6 +20,12 @@
     <DataTemplate DataType="{x:Type vm:HealthViewModel}">
       <views:HealthView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:MediaViewModel}">
+      <views:MediaView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:RomsViewModel}">
+      <views:RomsView />
+    </DataTemplate>
     <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
       <views:SettingsView />
     </DataTemplate>

@@ -32,6 +32,15 @@ public static class HealthReportBuilder
                 $"{SourceName(game.Source)} entry \"{game.GameFileName}\" has no matching table file in the inventory."));
         }
 
+        // Warnings: the same ROM name exists in multiple files.
+        foreach (var group in roms.Where(r => !r.IsMissing)
+                     .GroupBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
+                     .Where(g => g.Count() > 1))
+        {
+            findings.Add(new HealthFinding(HealthSeverity.Warning, "Duplicate ROM", group.Key,
+                $"{group.Count()} copies: {string.Join("; ", group.Select(r => r.FilePath))}"));
+        }
+
         // Warnings: files that were present in an earlier scan but have vanished.
         foreach (var table in tables.Where(t => t.IsMissing))
             findings.Add(new HealthFinding(HealthSeverity.Warning, "Vanished file", table.Name,
@@ -54,6 +63,14 @@ public static class HealthReportBuilder
         {
             findings.Add(new HealthFinding(HealthSeverity.Info, "Unreferenced ROM", rom.Name,
                 $"No table script references this ROM: {rom.FilePath}"));
+        }
+
+        // Info: VPX tables without a backglass next to them.
+        foreach (var table in tables.Where(t =>
+                     !t.IsMissing && t.Format == TableFormat.VisualPinballX && !t.HasBackglass))
+        {
+            findings.Add(new HealthFinding(HealthSeverity.Info, "No backglass", table.Name,
+                $"No .directb2s file next to the table: {table.FilePath}"));
         }
 
         // Info: media that could not be matched to any table by name.

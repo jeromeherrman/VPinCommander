@@ -1,0 +1,67 @@
+<UserControl x:Class="VPinCommander.App.Views.MediaView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:VPinCommander.App.Converters">
+  <UserControl.Resources>
+    <conv:ImagePreviewConverter x:Key="ImagePreview" />
+  </UserControl.Resources>
+
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+      <TextBlock Text="Media" FontSize="24" FontWeight="SemiBold" />
+      <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+        <TextBlock Text="Category:" VerticalAlignment="Center" Foreground="#666" Margin="0,0,8,0" />
+        <ComboBox ItemsSource="{Binding CategoryOptions}"
+                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                  MinWidth="130" VerticalAlignment="Center" />
+        <CheckBox Content="Unassigned only"
+                  IsChecked="{Binding UnassignedOnly, Mode=TwoWay}"
+                  VerticalAlignment="Center" Margin="20,0,0,0" />
+        <Button Content="Refresh" Command="{Binding RefreshCommand}" Padding="14,6" Margin="20,0,0,0" />
+      </StackPanel>
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" Foreground="#444" Margin="0,8,0,0" TextWrapping="Wrap" />
+
+    <Border DockPanel.Dock="Right" Width="300" Margin="16,0,0,0"
+            Background="#F4F4F8" CornerRadius="8" Padding="12">
+      <StackPanel>
+        <TextBlock Text="Preview" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <Border Height="200" Background="#22000000" CornerRadius="4">
+          <Image Source="{Binding SelectedAsset.FilePath, Converter={StaticResource ImagePreview}}"
+                 Stretch="Uniform" />
+        </Border>
+        <TextBlock Text="{Binding SelectedAsset.FileName}" FontWeight="SemiBold"
+                   TextWrapping="Wrap" Margin="0,8,0,2" />
+        <TextBlock Text="{Binding SelectedAsset.FilePath}" Foreground="#666" FontSize="11"
+                   TextWrapping="Wrap" Margin="0,0,0,12" />
+
+        <TextBlock Text="Assign to table" FontWeight="SemiBold" Margin="0,8,0,4" />
+        <TextBlock Text="Renames the file to the table's name so it matches automatically."
+                   Foreground="#666" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6" />
+        <ComboBox ItemsSource="{Binding Tables}"
+                  SelectedItem="{Binding SelectedTable, Mode=TwoWay}"
+                  DisplayMemberPath="Name"
+                  IsEditable="False" Margin="0,0,0,8" />
+        <Button Content="Assign &amp; rename" Command="{Binding AssignCommand}"
+                Padding="14,8" FontWeight="SemiBold" HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
+
+    <DataGrid ItemsSource="{Binding Assets}"
+              SelectedItem="{Binding SelectedAsset, Mode=TwoWay}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              GridLinesVisibility="Horizontal"
+              HeadersVisibility="Column">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="2*" />
+        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="Auto" />
+        <DataGridTextColumn Header="Matched table" Binding="{Binding MatchedTableName}" Width="2*" />
+        <DataGridCheckBoxColumn Header="Missing" Binding="{Binding IsMissing}" Width="Auto" />
+        <DataGridTextColumn Header="Size (bytes)" Binding="{Binding FileSizeBytes, StringFormat=N0}" Width="Auto" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

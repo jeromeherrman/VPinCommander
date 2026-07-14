@@ -34,6 +34,21 @@ public class GameTable
 
     /// <summary>Version from the table's TableInfo metadata, when present.</summary>
     public string? TableVersion { get; set; }
+
+    /// <summary>A .directb2s backglass file sits next to the table file.</summary>
+    public bool HasBackglass { get; set; }
+
+    /// <summary>A PuP-Pack folder exists for this table's ROM under PUPVideos.</summary>
+    public bool HasPupPack { get; set; }
+
+    /// <summary>An altcolor (DMD colorization) folder exists for this table's ROM.</summary>
+    public bool HasAltColor { get; set; }
+
+    /// <summary>An altsound folder exists for this table's ROM.</summary>
+    public bool HasAltSound { get; set; }
+
+    /// <summary>The DOF config files cover this table's ROM (feedback/rumble support).</summary>
+    public bool HasDofConfig { get; set; }
 }
 
 public enum TableFormat

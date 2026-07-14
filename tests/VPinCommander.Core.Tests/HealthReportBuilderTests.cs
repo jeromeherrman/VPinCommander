@@ -119,6 +119,39 @@ public class HealthReportBuilderTests
     }
 
     [Fact]
+    public void Duplicate_rom_files_are_a_warning()
+    {
+        var romA = Rom("afm_113b");
+        var romB = Rom("AFM_113B");
+        romB.FilePath = @"D:\OtherRoms\afm_113b.zip";
+
+        var findings = HealthReportBuilder.Build(
+            Array.Empty<GameTable>(), new[] { romA, romB }, Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+
+        var duplicate = Assert.Single(findings, f => f.Category == "Duplicate ROM");
+        Assert.Equal(HealthSeverity.Warning, duplicate.Severity);
+        Assert.Contains("2 copies", duplicate.Detail);
+    }
+
+    [Fact]
+    public void Vpx_table_without_backglass_is_info()
+    {
+        var withB2s = Table("Has B2S");
+        withB2s.Format = TableFormat.VisualPinballX;
+        withB2s.HasBackglass = true;
+        var withoutB2s = Table("No B2S");
+        withoutB2s.Format = TableFormat.VisualPinballX;
+
+        var findings = HealthReportBuilder.Build(
+            new[] { withB2s, withoutB2s }, Array.Empty<Rom>(), Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+
+        var finding = Assert.Single(findings);
+        Assert.Equal(HealthSeverity.Info, finding.Severity);
+        Assert.Equal("No backglass", finding.Category);
+        Assert.Equal("No B2S", finding.Item);
+    }
+
+    [Fact]
     public void Missing_table_does_not_produce_missing_rom_error()
     {
         // A vanished table shouldn't also complain about its ROM.

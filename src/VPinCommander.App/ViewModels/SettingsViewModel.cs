@@ -15,6 +15,7 @@ public partial class SettingsViewModel : PageViewModel
     [ObservableProperty] private string _mediaFoldersText = string.Empty;
     [ObservableProperty] private string _pinUpFolderText = string.Empty;
     [ObservableProperty] private string _pinballXFolderText = string.Empty;
+    [ObservableProperty] private string _dofFolderText = string.Empty;
     [ObservableProperty] private string _status = string.Empty;
 
     public SettingsViewModel(ISettingsService settingsService)
@@ -26,6 +27,7 @@ public partial class SettingsViewModel : PageViewModel
         MediaFoldersText = string.Join(Environment.NewLine, settings.MediaFolders);
         PinUpFolderText = settings.PinUpSystemFolder ?? string.Empty;
         PinballXFolderText = settings.PinballXFolder ?? string.Empty;
+        DofFolderText = settings.DofConfigFolder ?? string.Empty;
     }
 
     [RelayCommand]
@@ -40,6 +42,7 @@ public partial class SettingsViewModel : PageViewModel
                 MediaFolders = ParseLines(MediaFoldersText),
                 PinUpSystemFolder = string.IsNullOrWhiteSpace(PinUpFolderText) ? null : PinUpFolderText.Trim(),
                 PinballXFolder = string.IsNullOrWhiteSpace(PinballXFolderText) ? null : PinballXFolderText.Trim(),
+                DofConfigFolder = string.IsNullOrWhiteSpace(DofFolderText) ? null : DofFolderText.Trim(),
             });
             Status = "Settings saved.";
         }

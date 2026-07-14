@@ -94,10 +94,11 @@ public sealed class InventoryStore : IInventoryStore
                 table.RomName = scanned.RomName;
                 table.Author = scanned.Author;
                 table.TableVersion = scanned.TableVersion;
+                ApplyDependencies(table, scanned.Dependencies);
             }
             else
             {
-                db.Tables.Add(new GameTable
+                var newTable = new GameTable
                 {
                     Name = scanned.Name,
                     FilePath = scanned.FilePath,
@@ -110,11 +111,22 @@ public sealed class InventoryStore : IInventoryStore
                     RomName = scanned.RomName,
                     Author = scanned.Author,
                     TableVersion = scanned.TableVersion,
-                });
+                };
+                ApplyDependencies(newTable, scanned.Dependencies);
+                db.Tables.Add(newTable);
             }
         }
 
         MarkMissing(existing.Values, seen, result.ScannedRoots, t => t.FilePath, (t, missing) => t.IsMissing = missing);
+    }
+
+    private static void ApplyDependencies(GameTable table, TableDependencies dependencies)
+    {
+        table.HasBackglass = dependencies.HasBackglass;
+        table.HasPupPack = dependencies.HasPupPack;
+        table.HasAltColor = dependencies.HasAltColor;
+        table.HasAltSound = dependencies.HasAltSound;
+        table.HasDofConfig = dependencies.HasDofConfig;
     }
 
     private static async Task UpsertRomsAsync(VPinDbContext db, ScanResult result, DateTime now, CancellationToken ct)

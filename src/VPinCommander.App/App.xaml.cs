@@ -7,9 +7,11 @@ using VPinCommander.App.ViewModels;
 using VPinCommander.Core;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
+using VPinCommander.Core.Services;
 using VPinCommander.Core.Settings;
 using VPinCommander.Data;
 using VPinCommander.Data.Integrations;
+using VPinCommander.Data.Services;
 using VPinCommander.Data.Vpx;
 
 namespace VPinCommander.App;
@@ -29,6 +31,8 @@ public partial class App : Application
                 services.AddDbContextFactory<VPinDbContext>(options =>
                     options.UseSqlite($"Data Source={AppPaths.DatabasePath}"));
                 services.AddSingleton<IInventoryStore, InventoryStore>();
+                services.AddSingleton<IMediaManager, MediaManager>();
+                services.AddSingleton<IRomManager, RomManager>();
                 services.AddSingleton<PopperIntegration>();
                 services.AddSingleton<PinballXIntegration>();
 
@@ -37,6 +41,8 @@ public partial class App : Application
                 services.AddSingleton<PopperViewModel>();
                 services.AddSingleton<PinballXViewModel>();
                 services.AddSingleton<HealthViewModel>();
+                services.AddSingleton<MediaViewModel>();
+                services.AddSingleton<RomsViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();

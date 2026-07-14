@@ -40,6 +40,7 @@ public sealed class InventoryScanner : IInventoryScanner
     private ScanResult Scan(AppSettings settings, IProgress<string>? progress, CancellationToken ct)
     {
         var result = new ScanResult { StartedUtc = DateTime.UtcNow };
+        var probe = new DependencyProbe(settings);
 
         foreach (var folder in Existing(settings.TableFolders, result))
         {
@@ -64,7 +65,8 @@ public sealed class InventoryScanner : IInventoryScanner
                     info.LastWriteTimeUtc,
                     RomName: metadata?.RomName,
                     Author: metadata?.AuthorName,
-                    TableVersion: metadata?.TableVersion));
+                    TableVersion: metadata?.TableVersion,
+                    Dependencies: probe.Probe(info.FullName, metadata?.RomName)));
             }
         }
 

@@ -21,6 +21,11 @@
         <DataGridTextColumn Header="ROM" Binding="{Binding RomName}" Width="Auto" />
         <DataGridTextColumn Header="Version" Binding="{Binding TableVersion}" Width="Auto" />
         <DataGridTextColumn Header="Author" Binding="{Binding Author}" Width="Auto" />
+        <DataGridCheckBoxColumn Header="B2S" Binding="{Binding HasBackglass}" Width="Auto" />
+        <DataGridCheckBoxColumn Header="PuP" Binding="{Binding HasPupPack}" Width="Auto" />
+        <DataGridCheckBoxColumn Header="DOF" Binding="{Binding HasDofConfig}" Width="Auto" />
+        <DataGridCheckBoxColumn Header="AltColor" Binding="{Binding HasAltColor}" Width="Auto" />
+        <DataGridCheckBoxColumn Header="AltSound" Binding="{Binding HasAltSound}" Width="Auto" />
         <DataGridTextColumn Header="Size (bytes)" Binding="{Binding FileSizeBytes, StringFormat=N0}" Width="Auto" />
         <DataGridTextColumn Header="Modified (UTC)" Binding="{Binding FileModifiedUtc, StringFormat=g}" Width="Auto" />
         <DataGridCheckBoxColumn Header="Missing" Binding="{Binding IsMissing}" Width="Auto" />

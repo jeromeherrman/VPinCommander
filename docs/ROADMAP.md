@@ -13,11 +13,11 @@
 - [x] Table ↔ ROM ↔ media matching via VPX script parsing (`cGameName`)
 - [x] Health report v1: missing ROMs, missing media, orphaned files
 
-## Milestone 3 — Content management
-- [ ] Artwork/media management (preview, rename to convention, assign to table)
-- [ ] ROM management (dedupe, orphan detection)
-- [ ] Automatic dependency resolution (B2S backglass, PuP-Packs, music, scripts)
-- [ ] DOF/rumble support detection (DOF config scan)
+## Milestone 3 — Content management (done)
+- [x] Artwork/media management (preview, rename to convention, assign to table)
+- [x] ROM management (dedupe, orphan detection, quarantine)
+- [x] Automatic dependency resolution (B2S backglass, PuP-Packs, altcolor, altsound)
+- [x] DOF/rumble support detection (DOF config scan)
 
 ## Milestone 4 — Lifecycle
 - [ ] Version tracking of tables/backglasses
