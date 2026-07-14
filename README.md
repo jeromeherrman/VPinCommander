@@ -24,7 +24,7 @@ VPin Commander scans your cabinet, builds a full inventory of your tables, ROMs,
 ## Building from source
 
 ```powershell
-git clone https://github.com/<org>/VPinCommander.git
+git clone https://github.com/jeromeherrman/VPinCommander.git
 cd VPinCommander
 dotnet build
 dotnet test
