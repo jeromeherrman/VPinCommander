@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VPinCommander.App.ViewModels;
 using VPinCommander.Core;
-using VPinCommander.Core.Integrations;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
 using VPinCommander.Core.Settings;
@@ -28,11 +27,13 @@ public partial class App : Application
                 services.AddDbContextFactory<VPinDbContext>(options =>
                     options.UseSqlite($"Data Source={AppPaths.DatabasePath}"));
                 services.AddSingleton<IInventoryStore, InventoryStore>();
-                services.AddSingleton<IFrontEndIntegration, PopperIntegration>();
+                services.AddSingleton<PopperIntegration>();
+                services.AddSingleton<PinballXIntegration>();
 
                 services.AddSingleton<DashboardViewModel>();
                 services.AddSingleton<TablesViewModel>();
                 services.AddSingleton<PopperViewModel>();
+                services.AddSingleton<PinballXViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();

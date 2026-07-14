@@ -11,4 +11,7 @@ public class AppSettings
 
     /// <summary>PinUP Popper system folder (contains PUPDatabase.db); auto-detected when null.</summary>
     public string? PinUpSystemFolder { get; set; }
+
+    /// <summary>PinballX install folder (contains Databases\ and Config\PinballX.ini); auto-detected when null.</summary>
+    public string? PinballXFolder { get; set; }
 }

@@ -85,6 +85,23 @@ public class GameMatcherTests
     }
 
     [Fact]
+    public void Custom_system_name_with_resolved_vpx_path_still_counts_as_pinball()
+    {
+        var table = Table(2, @"C:\Tables\Medieval Madness.vpx");
+        var game = new FrontEndGame
+        {
+            EmulatorName = "JP's Arcade Cabinet", // custom PinballX system name
+            GameFileName = "Medieval Madness",    // extensionless, PinballX style
+            ResolvedGamePath = @"C:\Tables\Medieval Madness.vpx",
+        };
+
+        GameMatcher.Match(new[] { game }, new[] { table });
+
+        Assert.Equal(MatchStatus.MatchedByPath, game.MatchStatus);
+        Assert.Equal(2, game.MatchedTableId);
+    }
+
+    [Fact]
     public void Non_pinball_games_are_not_applicable()
     {
         var game = new FrontEndGame

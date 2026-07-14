@@ -12,7 +12,10 @@
       <views:TablesView />
     </DataTemplate>
     <DataTemplate DataType="{x:Type vm:PopperViewModel}">
-      <views:PopperView />
+      <views:FrontEndView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:PinballXViewModel}">
+      <views:FrontEndView />
     </DataTemplate>
     <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
       <views:SettingsView />

@@ -53,7 +53,7 @@
       <Border Style="{StaticResource StatCard}">
         <StackPanel>
           <TextBlock Text="{Binding PopperGameCount}" Style="{StaticResource StatNumber}" />
-          <TextBlock Text="Popper games" Style="{StaticResource StatLabel}" />
+          <TextBlock Text="Front-end games" Style="{StaticResource StatLabel}" />
         </StackPanel>
       </Border>
       <Border Style="{StaticResource StatCard}">

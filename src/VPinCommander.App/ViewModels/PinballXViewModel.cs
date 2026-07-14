@@ -4,9 +4,9 @@ using VPinCommander.Data.Integrations;
 
 namespace VPinCommander.App.ViewModels;
 
-public sealed class PopperViewModel : FrontEndPageViewModel
+public sealed class PinballXViewModel : FrontEndPageViewModel
 {
-    public PopperViewModel(PopperIntegration integration, IInventoryStore store, ISettingsService settingsService)
+    public PinballXViewModel(PinballXIntegration integration, IInventoryStore store, ISettingsService settingsService)
         : base(integration, store, settingsService)
     {
     }

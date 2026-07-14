@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace VPinCommander.App.Views;
 
-public partial class PopperView : UserControl
+public partial class FrontEndView : UserControl
 {
-    public PopperView()
+    public FrontEndView()
     {
         InitializeComponent();
     }

@@ -60,9 +60,8 @@ public static class GameMatcher
     /// <summary>VPX/FP games can be matched to table files; everything else (FX3, arcade emus) cannot.</summary>
     internal static bool LooksLikePinballGame(FrontEndGame game)
     {
-        var ext = Path.GetExtension(game.GameFileName);
-        if (ext.Equals(".vpx", StringComparison.OrdinalIgnoreCase) ||
-            ext.Equals(".fp", StringComparison.OrdinalIgnoreCase))
+        if (HasTableExtension(game.GameFileName) ||
+            (game.ResolvedGamePath is not null && HasTableExtension(game.ResolvedGamePath)))
             return true;
 
         var emu = game.EmulatorName;
@@ -71,6 +70,14 @@ public static class GameMatcher
             || emu.Contains("vpx", StringComparison.OrdinalIgnoreCase)
             || emu.Equals("vp", StringComparison.OrdinalIgnoreCase)
             || emu.Equals("fp", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasTableExtension(string path)
+    {
+        var ext = Path.GetExtension(path);
+        return ext.Equals(".vpx", StringComparison.OrdinalIgnoreCase)
+            || ext.Equals(".vpt", StringComparison.OrdinalIgnoreCase)
+            || ext.Equals(".fp", StringComparison.OrdinalIgnoreCase);
     }
 
     private static Dictionary<string, GameTable> BuildLookup(

@@ -9,7 +9,7 @@
 
 ## Milestone 2 — Make it useful on a real cabinet (in progress)
 - [x] PinUP Popper integration (read `PUPDatabase.db`, match games to inventory)
-- [ ] PinballX integration (XML database import)
+- [x] PinballX integration (XML database import)
 - [ ] Table ↔ ROM ↔ media matching via VPX script parsing (`cGameName`)
 - [ ] Health report v1: missing ROMs, missing media, orphaned files
 
