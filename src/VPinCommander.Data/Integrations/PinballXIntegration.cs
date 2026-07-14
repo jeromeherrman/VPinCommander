@@ -1,4 +1,3 @@
-using System.Xml.Linq;
 using VPinCommander.Core.Integrations;
 using VPinCommander.Core.Models;
 using VPinCommander.Core.Settings;
@@ -12,8 +11,6 @@ namespace VPinCommander.Data.Integrations;
 /// </summary>
 public sealed class PinballXIntegration : IFrontEndIntegration
 {
-    private static readonly string[] TableExtensions = { ".vpx", ".vpt", ".fp" };
-
     public FrontEndSource Source => FrontEndSource.PinballX;
 
     public string DisplayName => "PinballX";
@@ -66,83 +63,13 @@ public sealed class PinballXIntegration : IFrontEndIntegration
             ct.ThrowIfCancellationRequested();
             var systemName = Path.GetFileName(systemDir);
             var tablePath = ResolveTablePath(iniSections, systemName);
-
-            foreach (var xmlFile in Directory.EnumerateFiles(systemDir, "*.xml"))
-            {
-                XDocument doc;
-                try
-                {
-                    doc = XDocument.Load(xmlFile);
-                }
-                catch (Exception ex)
-                {
-                    result.Errors.Add($"Could not parse {Path.GetFileName(xmlFile)}: {ex.Message}");
-                    continue;
-                }
-
-                foreach (var element in doc.Descendants("game"))
-                {
-                    ct.ThrowIfCancellationRequested();
-
-                    var name = element.Attribute("name")?.Value?.Trim();
-                    if (string.IsNullOrEmpty(name))
-                        continue;
-
-                    // PinballX has no numeric game ids; derive a stable one from system + name.
-                    var externalId = Fnv1a64($"{systemName}|{name}".ToLowerInvariant());
-                    if (!seenIds.Add(externalId))
-                    {
-                        result.Errors.Add($"Duplicate entry skipped: {systemName}\\{name}");
-                        continue;
-                    }
-
-                    result.Games.Add(new FrontEndGame
-                    {
-                        Source = FrontEndSource.PinballX,
-                        ExternalId = externalId,
-                        EmulatorName = systemName,
-                        GameName = name,
-                        GameFileName = name, // PinballX stores the file stem; extension comes from the system.
-                        DisplayName = Element(element, "description") ?? name,
-                        RomName = Element(element, "rom"),
-                        Manufacturer = Element(element, "manufacturer"),
-                        Year = Element(element, "year"),
-                        Version = Element(element, "version"),
-                        Visible = ParseBool(Element(element, "enabled"), defaultValue: true),
-                        ResolvedGamePath = FindTableFile(tablePath, name),
-                        LastImportedUtc = now,
-                    });
-                }
-            }
+            PinballXmlDatabase.ImportSystemFolder(result, seenIds, Source, systemDir, systemName, tablePath, now, ct);
         }
 
         if (result.Games.Count == 0 && result.Errors.Count == 0)
             result.Errors.Add($"No game databases found under {databasesDir}.");
 
         return result;
-    }
-
-    private static string? Element(XElement game, string name)
-    {
-        var value = game.Element(name)?.Value?.Trim();
-        return string.IsNullOrEmpty(value) ? null : value;
-    }
-
-    private static bool ParseBool(string? value, bool defaultValue)
-        => bool.TryParse(value, out var parsed) ? parsed : defaultValue;
-
-    private static string? FindTableFile(string? tablePath, string name)
-    {
-        if (string.IsNullOrWhiteSpace(tablePath))
-            return null;
-
-        foreach (var ext in TableExtensions)
-        {
-            var candidate = Path.Combine(tablePath, name + ext);
-            if (File.Exists(candidate))
-                return Path.GetFullPath(candidate);
-        }
-        return null;
     }
 
     /// <summary>
@@ -152,26 +79,23 @@ public sealed class PinballXIntegration : IFrontEndIntegration
     private static string? ResolveTablePath(
         Dictionary<string, Dictionary<string, string>> iniSections, string systemName)
     {
-        var normalized = Normalize(systemName);
+        var normalized = PinballXmlDatabase.Normalize(systemName);
 
         foreach (var (section, values) in iniSections)
         {
-            if (Normalize(section) == normalized && values.TryGetValue("TablePath", out var direct))
+            if (PinballXmlDatabase.Normalize(section) == normalized && values.TryGetValue("TablePath", out var direct))
                 return direct;
         }
 
         foreach (var values in iniSections.Values)
         {
-            if (values.TryGetValue("Name", out var name) && Normalize(name) == normalized
+            if (values.TryGetValue("Name", out var name) && PinballXmlDatabase.Normalize(name) == normalized
                 && values.TryGetValue("TablePath", out var custom))
                 return custom;
         }
 
         return null;
     }
-
-    private static string Normalize(string value) =>
-        new(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
 
     private static Dictionary<string, Dictionary<string, string>> LoadIni(string iniPath, FrontEndImportResult result)
     {
@@ -201,21 +125,5 @@ public sealed class PinballXIntegration : IFrontEndIntegration
                 current[line[..separator].Trim()] = line[(separator + 1)..].Trim();
         }
         return sections;
-    }
-
-    private static long Fnv1a64(string value)
-    {
-        unchecked
-        {
-            const ulong offsetBasis = 14695981039346656037;
-            const ulong prime = 1099511628211;
-            ulong hash = offsetBasis;
-            foreach (var c in value)
-            {
-                hash ^= c;
-                hash *= prime;
-            }
-            return (long)hash;
-        }
     }
 }

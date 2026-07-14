@@ -91,6 +91,7 @@ public static class HealthReportBuilder
     {
         FrontEndSource.PinUpPopper => "PinUP Popper",
         FrontEndSource.PinballX => "PinballX",
+        FrontEndSource.PinballY => "PinballY",
         _ => source.ToString(),
     };
 }

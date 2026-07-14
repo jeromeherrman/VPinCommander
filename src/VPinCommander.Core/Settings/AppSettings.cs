@@ -15,6 +15,9 @@ public class AppSettings
     /// <summary>PinballX install folder (contains Databases\ and Config\PinballX.ini); auto-detected when null.</summary>
     public string? PinballXFolder { get; set; }
 
+    /// <summary>PinballY install folder (contains Databases\ and Settings.txt); auto-detected when null.</summary>
+    public string? PinballYFolder { get; set; }
+
     /// <summary>Folder containing directoutputconfig*.ini (DOF Config Tool output); auto-detected when null.</summary>
     public string? DofConfigFolder { get; set; }
 

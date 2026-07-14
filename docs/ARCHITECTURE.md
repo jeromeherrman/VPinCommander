@@ -52,7 +52,8 @@ Content operations are conservative by design: `MediaManager.AssignToTableAsync`
 `IFrontEndIntegration` (Core) is the adapter seam; adapters live in Data:
 
 - `PopperIntegration` opens Popper's `PUPDatabase.db` read-only with Microsoft.Data.Sqlite. Popper's schema varies across versions, so every column read is presence-checked.
-- `PinballXIntegration` reads the per-system XML databases under `Databases\<System>\*.xml` and parses `Config\PinballX.ini` for each system's `TablePath`, so extensionless PinballX names can be resolved to real table files (`.vpx`/`.vpt`/`.fp`). PinballX has no numeric game ids, so a stable FNV-1a hash of system+name serves as `ExternalId`.
+- `PinballXIntegration` reads the per-system XML databases under `Databases\<System>\*.xml` and parses `Config\PinballX.ini` for each system's `TablePath`, so extensionless PinballX names can be resolved to real table files (`.vpx`/`.vpt`/`.fp`). These databases have no numeric game ids, so a stable FNV-1a hash of system+name serves as `ExternalId`.
+- `PinballYIntegration` reuses the same XML parsing (`PinballXmlDatabase` — PinballY is deliberately PinballX-compatible) but reads system names and table paths from PinballY's flat `Settings.txt` (`SystemN = Name`, `SystemN.TablePath`, `SystemN.DatabaseDir`).
 
 Imports are wholesale replacements per source. `GameMatcher` (Core, pure logic) then links games to inventory tables — by resolved path, then file name, then name stem — and marks non-VPX/FP games (e.g. Pinball FX) as `NotApplicable`. Matches are recomputed after every inventory scan. In the app, both integrations share one page implementation (`FrontEndPageViewModel` + `FrontEndView`).
 

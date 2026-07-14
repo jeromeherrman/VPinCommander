@@ -68,11 +68,13 @@ public partial class App : Application
                 services.AddSingleton<IUpdateChecker, VpsUpdateChecker>();
                 services.AddSingleton<PopperIntegration>();
                 services.AddSingleton<PinballXIntegration>();
+                services.AddSingleton<PinballYIntegration>();
 
                 services.AddSingleton<DashboardViewModel>();
                 services.AddSingleton<TablesViewModel>();
                 services.AddSingleton<PopperViewModel>();
                 services.AddSingleton<PinballXViewModel>();
+                services.AddSingleton<PinballYViewModel>();
                 services.AddSingleton<HealthViewModel>();
                 services.AddSingleton<MediaViewModel>();
                 services.AddSingleton<RomsViewModel>();

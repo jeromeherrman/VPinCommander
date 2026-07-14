@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- PinballY integration: imports games from PinballY's PinballX-compatible XML databases, resolving system names and table paths from `Settings.txt`. Third front-end page alongside PinUP Popper and PinballX.
+
 ## 0.1.1 — 2026-07-14
 
 ### Fixed

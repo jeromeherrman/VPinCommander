@@ -45,6 +45,7 @@ public enum FrontEndSource
 {
     PinUpPopper = 1,
     PinballX = 2,
+    PinballY = 3,
 }
 
 public enum MatchStatus

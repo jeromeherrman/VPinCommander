@@ -21,6 +21,7 @@ public partial class SettingsViewModel : PageViewModel
     [ObservableProperty] private string _mediaFoldersText = string.Empty;
     [ObservableProperty] private string _pinUpFolderText = string.Empty;
     [ObservableProperty] private string _pinballXFolderText = string.Empty;
+    [ObservableProperty] private string _pinballYFolderText = string.Empty;
     [ObservableProperty] private string _dofFolderText = string.Empty;
     [ObservableProperty] private string _cloudFolderText = string.Empty;
     [ObservableProperty] private string _cloudStatusText = string.Empty;
@@ -40,6 +41,7 @@ public partial class SettingsViewModel : PageViewModel
         MediaFoldersText = string.Join(Environment.NewLine, settings.MediaFolders);
         PinUpFolderText = settings.PinUpSystemFolder ?? string.Empty;
         PinballXFolderText = settings.PinballXFolder ?? string.Empty;
+        PinballYFolderText = settings.PinballYFolder ?? string.Empty;
         DofFolderText = settings.DofConfigFolder ?? string.Empty;
         CloudFolderText = settings.CloudSyncFolder ?? string.Empty;
     }
@@ -75,6 +77,7 @@ public partial class SettingsViewModel : PageViewModel
                 MediaFolders = ParseLines(MediaFoldersText),
                 PinUpSystemFolder = string.IsNullOrWhiteSpace(PinUpFolderText) ? null : PinUpFolderText.Trim(),
                 PinballXFolder = string.IsNullOrWhiteSpace(PinballXFolderText) ? null : PinballXFolderText.Trim(),
+                PinballYFolder = string.IsNullOrWhiteSpace(PinballYFolderText) ? null : PinballYFolderText.Trim(),
                 DofConfigFolder = string.IsNullOrWhiteSpace(DofFolderText) ? null : DofFolderText.Trim(),
                 CloudSyncFolder = string.IsNullOrWhiteSpace(CloudFolderText) ? null : CloudFolderText.Trim(),
             });

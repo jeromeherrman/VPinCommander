@@ -42,6 +42,12 @@
       <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
                Text="{Binding PinballXFolderText, UpdateSourceTrigger=PropertyChanged}" />
 
+      <TextBlock Text="PinballY install folder" FontWeight="SemiBold" />
+      <TextBlock Text="Folder containing Databases\ and Settings.txt (e.g. C:\PinballY). Leave empty to auto-detect."
+                 Foreground="#666" FontSize="12" Margin="0,2,0,0" />
+      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
+               Text="{Binding PinballYFolderText, UpdateSourceTrigger=PropertyChanged}" />
+
       <TextBlock Text="DOF config folder" FontWeight="SemiBold" />
       <TextBlock Text="Folder containing directoutputconfig*.ini from the DOF Config Tool (e.g. C:\DirectOutput). Leave empty to auto-detect."
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
