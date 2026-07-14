@@ -112,6 +112,7 @@ public sealed class InventoryStore : IInventoryStore
                 table.RomName = scanned.RomName;
                 table.Author = scanned.Author;
                 table.TableVersion = scanned.TableVersion;
+                table.VpxFormatVersion = scanned.VpxFormatVersion;
                 ApplyDependencies(table, scanned.Dependencies);
             }
             else
@@ -129,6 +130,7 @@ public sealed class InventoryStore : IInventoryStore
                     RomName = scanned.RomName,
                     Author = scanned.Author,
                     TableVersion = scanned.TableVersion,
+                    VpxFormatVersion = scanned.VpxFormatVersion,
                 };
                 ApplyDependencies(newTable, scanned.Dependencies);
                 db.Tables.Add(newTable);

@@ -34,7 +34,8 @@ public sealed partial class VpxMetadataReader : IVpxMetadataReader
                 RomName: romName,
                 TableName: ReadTableInfo(root, "TableName"),
                 AuthorName: ReadTableInfo(root, "AuthorName"),
-                TableVersion: ReadTableInfo(root, "TableVersion"));
+                TableVersion: ReadTableInfo(root, "TableVersion"),
+                FileVersion: ReadFileVersion(root));
         }
         catch (Exception)
         {
@@ -93,6 +94,24 @@ public sealed partial class VpxMetadataReader : IVpxMetadataReader
             pos += recordLength; // record length includes the 4 tag bytes
         }
         return null;
+    }
+
+    /// <summary>GameStg\Version holds the file-format version as int32 (e.g. 1070 = saved by VPX 10.7).</summary>
+    private static int? ReadFileVersion(RootStorage root)
+    {
+        try
+        {
+            var storage = root.OpenStorage("GameStg");
+            using var stream = storage.OpenStream("Version");
+            using var buffer = new MemoryStream();
+            stream.CopyTo(buffer);
+            var bytes = buffer.ToArray();
+            return bytes.Length >= 4 ? BitConverter.ToInt32(bytes, 0) : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     private static string? ReadTableInfo(RootStorage root, string streamName)

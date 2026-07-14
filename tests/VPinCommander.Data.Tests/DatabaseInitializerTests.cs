@@ -33,7 +33,11 @@ public sealed class DatabaseInitializerTests : IDisposable
     private void CreateLegacyDatabase(long userVersion)
     {
         using var db = _factory.CreateDbContext();
-        db.Database.EnsureCreated(); // pre-migrations creation path
+        // A real legacy database has exactly the InitialCreate schema (not the
+        // current model!) and no migrations history table.
+        db.GetService<Microsoft.EntityFrameworkCore.Migrations.IMigrator>()
+            .Migrate(DatabaseInitializer.InitialMigrationId);
+        db.Database.ExecuteSqlRaw("DROP TABLE __EFMigrationsHistory");
         db.Database.ExecuteSqlRaw($"PRAGMA user_version = {userVersion}");
         db.Roms.Add(new Rom { Name = "afm_113b", FilePath = @"C:\Roms\afm_113b.zip" });
         db.SaveChanges();
@@ -103,6 +107,9 @@ public sealed class DatabaseInitializerTests : IDisposable
 
         Assert.Null(backup);
         using var db = _factory.CreateDbContext();
-        Assert.Single(db.Database.GetAppliedMigrations());
+        // Every defined migration is applied, none twice.
+        Assert.Equal(
+            db.Database.GetMigrations().OrderBy(m => m),
+            db.Database.GetAppliedMigrations().OrderBy(m => m));
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VPinCommander.Data;
 
@@ -10,9 +11,11 @@ using VPinCommander.Data;
 namespace VPinCommander.Data.Migrations
 {
     [DbContext(typeof(VPinDbContext))]
-    partial class VPinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260714115648_AddVpxFormatVersion")]
+    partial class AddVpxFormatVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.6");

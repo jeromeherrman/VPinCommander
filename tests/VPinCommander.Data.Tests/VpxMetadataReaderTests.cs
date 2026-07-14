@@ -21,7 +21,7 @@ public sealed class VpxMetadataReaderTests : IDisposable
     }
 
     /// <summary>Builds a minimal but structurally correct .vpx compound file.</summary>
-    private string CreateFakeVpx(string? script, Dictionary<string, string>? tableInfo = null)
+    private string CreateFakeVpx(string? script, Dictionary<string, string>? tableInfo = null, int? fileVersion = null)
     {
         var path = Path.Combine(_folder, Guid.NewGuid().ToString("N") + ".vpx");
         using var root = RootStorage.Create(path);
@@ -31,6 +31,13 @@ public sealed class VpxMetadataReaderTests : IDisposable
         {
             var bytes = BuildGameData(script);
             gameData.Write(bytes, 0, bytes.Length);
+        }
+
+        if (fileVersion is { } version)
+        {
+            using var versionStream = gameStg.CreateStream("Version");
+            var bytes = BitConverter.GetBytes(version);
+            versionStream.Write(bytes, 0, bytes.Length);
         }
 
         if (tableInfo is not null)
@@ -92,7 +99,8 @@ public sealed class VpxMetadataReaderTests : IDisposable
                 ["TableName"] = "Attack From Mars",
                 ["AuthorName"] = "Community",
                 ["TableVersion"] = "2.1",
-            });
+            },
+            fileVersion: 1072);
 
         var metadata = new VpxMetadataReader().Read(path);
 
@@ -101,6 +109,18 @@ public sealed class VpxMetadataReaderTests : IDisposable
         Assert.Equal("Attack From Mars", metadata.TableName);
         Assert.Equal("Community", metadata.AuthorName);
         Assert.Equal("2.1", metadata.TableVersion);
+        Assert.Equal(1072, metadata.FileVersion);
+    }
+
+    [Fact]
+    public void Missing_version_stream_yields_null_file_version()
+    {
+        var path = CreateFakeVpx("Option Explicit");
+
+        var metadata = new VpxMetadataReader().Read(path);
+
+        Assert.NotNull(metadata);
+        Assert.Null(metadata!.FileVersion);
     }
 
     [Theory]

@@ -1,5 +1,6 @@
 using VPinCommander.Core.Health;
 using VPinCommander.Core.Models;
+using VPinCommander.Core.Updates;
 using Xunit;
 
 namespace VPinCommander.Core.Tests;
@@ -149,6 +150,134 @@ public class HealthReportBuilderTests
         Assert.Equal(HealthSeverity.Info, finding.Severity);
         Assert.Equal("No backglass", finding.Category);
         Assert.Equal("No B2S", finding.Item);
+    }
+
+    [Fact]
+    public void Outdated_tables_from_the_vps_check_are_warnings()
+    {
+        var updates = new[]
+        {
+            new UpdateCandidate("Attack From Mars (Bally 1995)", @"C:\Tables\afm.vpx",
+                "2.0", "2.1", DateTime.UtcNow, "https://example/download"),
+        };
+
+        var findings = HealthReportBuilder.Build(
+            Array.Empty<GameTable>(), Array.Empty<Rom>(), Array.Empty<MediaAsset>(),
+            Array.Empty<FrontEndGame>(), updates);
+
+        var finding = Assert.Single(findings);
+        Assert.Equal(HealthSeverity.Warning, finding.Severity);
+        Assert.Equal("Outdated table", finding.Category);
+        Assert.Contains("2.0", finding.Detail);
+        Assert.Contains("2.1", finding.Detail);
+    }
+
+    [Fact]
+    public void Duplicate_table_names_are_a_warning()
+    {
+        var a = Table("Attack From Mars");
+        var b = Table("attack from mars");
+        b.FilePath = @"D:\OtherTables\attack from mars.vpx";
+
+        var findings = HealthReportBuilder.Build(
+            new[] { a, b }, Array.Empty<Rom>(), Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+
+        var duplicate = Assert.Single(findings, f => f.Category == "Duplicate table");
+        Assert.Equal(HealthSeverity.Warning, duplicate.Severity);
+        Assert.Contains("2 copies", duplicate.Detail);
+    }
+
+    [Fact]
+    public void Tables_without_media_are_info_once_any_media_matches()
+    {
+        var covered = Table("Covered Table");
+        var bare = Table("Bare Table");
+
+        var findings = HealthReportBuilder.Build(
+            new[] { covered, bare },
+            Array.Empty<Rom>(),
+            new[] { Media("Covered Table.png", matched: "Covered Table") },
+            Array.Empty<FrontEndGame>());
+
+        var finding = Assert.Single(findings, f => f.Category == "No media");
+        Assert.Equal("Bare Table", finding.Item);
+    }
+
+    [Fact]
+    public void No_media_findings_are_suppressed_when_nothing_has_matched_yet()
+    {
+        var findings = HealthReportBuilder.Build(
+            new[] { Table("Some Table") },
+            Array.Empty<Rom>(), Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+
+        Assert.DoesNotContain(findings, f => f.Category == "No media");
+    }
+
+    [Fact]
+    public void Missing_pup_pack_and_dof_are_gated_on_cabinet_usage()
+    {
+        GameTable VpxWithRom(string name, string rom, bool pup, bool dof)
+        {
+            var table = Table(name, rom);
+            table.Format = TableFormat.VisualPinballX;
+            table.HasBackglass = true; // silence the backglass rule
+            table.HasPupPack = pup;
+            table.HasDofConfig = dof;
+            return table;
+        }
+
+        var roms = new[] { Rom("rom_a"), Rom("rom_b") };
+
+        // Cabinet uses neither PuP nor DOF: nothing flagged.
+        var without = HealthReportBuilder.Build(
+            new[] { VpxWithRom("A", "rom_a", pup: false, dof: false) },
+            roms, Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+        Assert.DoesNotContain(without, f => f.Category is "No PuP-Pack" or "No DOF config");
+
+        // Cabinet uses both: the table lacking them is flagged.
+        var with = HealthReportBuilder.Build(
+            new[]
+            {
+                VpxWithRom("Equipped", "rom_a", pup: true, dof: true),
+                VpxWithRom("Lacking", "rom_b", pup: false, dof: false),
+            },
+            roms, Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+        Assert.Single(with, f => f is { Category: "No PuP-Pack", Item: "Lacking" });
+        Assert.Single(with, f => f is { Category: "No DOF config", Item: "Lacking" });
+    }
+
+    [Fact]
+    public void Old_vpx_format_is_info()
+    {
+        var old = Table("Ancient Table");
+        old.Format = TableFormat.VisualPinballX;
+        old.HasBackglass = true;
+        old.VpxFormatVersion = 1043;
+        var modern = Table("Modern Table");
+        modern.Format = TableFormat.VisualPinballX;
+        modern.HasBackglass = true;
+        modern.VpxFormatVersion = 1072;
+
+        var findings = HealthReportBuilder.Build(
+            new[] { old, modern }, Array.Empty<Rom>(), Array.Empty<MediaAsset>(), Array.Empty<FrontEndGame>());
+
+        var finding = Assert.Single(findings, f => f.Category == "Old VPX format");
+        Assert.Equal("Ancient Table", finding.Item);
+        Assert.Contains("10.4", finding.Detail);
+    }
+
+    [Fact]
+    public void Duplicate_media_files_are_info()
+    {
+        var a = Media("Firepower.png", matched: "Firepower");
+        var b = Media("Firepower.png", matched: "Firepower");
+        b.FilePath = @"D:\OtherMedia\Wheel\Firepower.png";
+
+        var findings = HealthReportBuilder.Build(
+            new[] { Table("Firepower") }, Array.Empty<Rom>(), new[] { a, b }, Array.Empty<FrontEndGame>());
+
+        var duplicate = Assert.Single(findings, f => f.Category == "Duplicate media");
+        Assert.Contains("2 copies", duplicate.Detail);
     }
 
     [Fact]

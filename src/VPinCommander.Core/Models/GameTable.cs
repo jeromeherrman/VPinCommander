@@ -35,6 +35,9 @@ public class GameTable
     /// <summary>Version from the table's TableInfo metadata, when present.</summary>
     public string? TableVersion { get; set; }
 
+    /// <summary>VPX file-format version (e.g. 1070 = saved by Visual Pinball 10.7), when readable.</summary>
+    public int? VpxFormatVersion { get; set; }
+
     /// <summary>A .directb2s backglass file sits next to the table file.</summary>
     public bool HasBackglass { get; set; }
 

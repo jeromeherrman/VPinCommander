@@ -31,7 +31,7 @@ Matching between tables ↔ ROMs ↔ media is filename-stem based in M1. Later m
 
 A `.vpx` table is an OLE compound file. `VpxMetadataReader` (Data, using OpenMcdf) opens it read-only, walks the BIFF records of the `GameStg\GameData` stream to the `CODE` record, and extracts the PinMAME ROM the script declares (`cGameName = "..."`), plus author/version from the `TableInfo` streams. The scanner runs this for every VPX table, so `GameTable.RomName` reflects what the table actually needs — not a filename guess.
 
-`HealthReportBuilder` (Core, pure) turns the stored inventory into findings: tables whose declared ROM is absent and front-end games without table files (errors), duplicate ROMs and files that vanished since a previous scan (warnings), unreferenced ROMs, unassigned media, and VPX tables without a backglass (info).
+`HealthReportBuilder` (Core, pure) turns the stored inventory into findings: tables whose declared ROM is absent and front-end games without table files (errors); outdated tables per the VPS catalog, duplicate tables/ROMs, and files that vanished since a previous scan (warnings); unreferenced ROMs, unassigned/duplicate media, tables without media, VPX tables without a backglass, tables missing PuP-Pack or DOF coverage (gated: only reported when the cabinet uses PuP-Packs/DOF at all), and tables saved with an old Visual Pinball format (info). The Health page feeds it the cached VPS update check and offers severity + category filters.
 
 ## Dependencies & content management
 

@@ -5,7 +5,8 @@ public sealed record VpxMetadata(
     string? RomName,
     string? TableName,
     string? AuthorName,
-    string? TableVersion);
+    string? TableVersion,
+    int? FileVersion = null);
 
 /// <summary>Reads metadata out of a .vpx file (OLE compound file); implemented in the Data project.</summary>
 public interface IVpxMetadataReader

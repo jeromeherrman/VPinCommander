@@ -66,7 +66,8 @@ public sealed class InventoryScanner : IInventoryScanner
                     RomName: metadata?.RomName,
                     Author: metadata?.AuthorName,
                     TableVersion: metadata?.TableVersion,
-                    Dependencies: probe.Probe(info.FullName, metadata?.RomName)));
+                    Dependencies: probe.Probe(info.FullName, metadata?.RomName),
+                    VpxFormatVersion: metadata?.FileVersion));
             }
         }
 

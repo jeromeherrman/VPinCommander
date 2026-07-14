@@ -12,7 +12,8 @@ public sealed record ScannedTable(
     string? RomName = null,
     string? Author = null,
     string? TableVersion = null,
-    TableDependencies Dependencies = default);
+    TableDependencies Dependencies = default,
+    int? VpxFormatVersion = null);
 
 public sealed record ScannedRom(string FilePath, string Name, long SizeBytes, DateTime ModifiedUtc);
 

@@ -10,7 +10,11 @@
         <TextBlock Text="Show:" VerticalAlignment="Center" Margin="24,0,8,0" Foreground="#666" />
         <ComboBox ItemsSource="{Binding FilterOptions}"
                   SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"
-                  MinWidth="140" VerticalAlignment="Center" />
+                  MinWidth="120" VerticalAlignment="Center" />
+        <TextBlock Text="Category:" VerticalAlignment="Center" Margin="16,0,8,0" Foreground="#666" />
+        <ComboBox ItemsSource="{Binding CategoryOptions}"
+                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                  MinWidth="170" VerticalAlignment="Center" />
       </StackPanel>
     </StackPanel>
 

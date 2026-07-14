@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Cabinet Health Report v2: the Health page now also reports outdated tables (VPS comparison), missing PuP-Packs and missing DOF coverage (only when the cabinet uses them), tables without any media, duplicate tables and duplicate media, and tables saved with an old Visual Pinball format. Findings are filterable by category as well as severity.
 - PinballY integration: imports games from PinballY's PinballX-compatible XML databases, resolving system names and table paths from `Settings.txt`. Third front-end page alongside PinUP Popper and PinballX.
 - One-click Installer page: add downloaded files (or scan the Downloads folder) and each piece — table, backglass, PinMAME ROM, PuP-Pack, DMD colorization, AltSound, media — is recognized automatically and installed to its proper cabinet folder. Existing files are never overwritten, unsafe archive paths are rejected, and downloading itself stays in the browser (community sites are login-gated; ROMs are copyrighted).
 
