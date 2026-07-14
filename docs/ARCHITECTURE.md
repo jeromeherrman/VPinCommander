@@ -45,6 +45,7 @@ Content operations are conservative by design: `MediaManager.AssignToTableAsync`
 - **Update notifications** — `VpsUpdateChecker` (Data) downloads the community Virtual Pinball Spreadsheet database (`vpsdb.json`, cached 24h under `%APPDATA%\VPinCommander`, stale cache used offline). `UpdateMatcher` (Core, pure) matches tables by normalized title with manufacturer/year tie-breakers from the conventional `Title (Manufacturer Year)` stem, compares the local TableInfo version against the newest VPX release, and deliberately skips ambiguous matches rather than guessing.
 - **Excel export** — `ExcelExporter` (Data, ClosedXML) writes Tables/ROMs/Media/Front-end games/Health/Version history sheets.
 - **Backup/restore** — `BackupService` checkpoints the WAL, zips the database + settings; restore validates the zip, keeps a `.pre-restore` copy, and requires an app restart.
+- **Cloud sync** — `CloudSyncService` layers on the backup service: push writes the sync zip + a manifest (when/which machine) into any folder the user's cloud client already syncs; pull restores from it. No accounts, no server.
 
 ## Front-end integrations
 
@@ -58,7 +59,7 @@ Imports are wholesale replacements per source. `GameMatcher` (Core, pure logic) 
 ## Persistence
 
 - SQLite database at `%APPDATA%\VPinCommander\vpincommander.db`.
-- EF Core with `EnsureCreated` plus a `PRAGMA user_version` schema stamp (`DatabaseInitializer`): on version mismatch the old file is backed up and recreated, which is acceptable pre-release because everything stored is re-derivable (scans, imports). Will switch to EF migrations before the first public release.
+- EF Core migrations (`DatabaseInitializer` runs `Migrate()` at startup). Databases created by pre-migration builds are adopted: the final legacy schema is baselined into the migrations history without data loss; older ones are backed up and recreated once. Add migrations with `dotnet ef migrations add <Name> --project src/VPinCommander.Data` (local tool manifest in `.config/`).
 - App settings (folder paths, preferences) as JSON at `%APPDATA%\VPinCommander\settings.json` via `SettingsService`.
 
 ## UI

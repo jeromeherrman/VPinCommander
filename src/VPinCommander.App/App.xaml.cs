@@ -39,6 +39,7 @@ public partial class App : Application
                 services.AddSingleton<IRomManager, RomManager>();
                 services.AddSingleton<IExcelExporter, ExcelExporter>();
                 services.AddSingleton<IBackupService, BackupService>();
+                services.AddSingleton<ICloudSyncService, CloudSyncService>();
                 services.AddSingleton(new HttpClient
                 {
                     DefaultRequestHeaders = { { "User-Agent", "VPinCommander" } },

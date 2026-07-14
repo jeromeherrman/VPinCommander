@@ -17,4 +17,7 @@ public class AppSettings
 
     /// <summary>Folder containing directoutputconfig*.ini (DOF Config Tool output); auto-detected when null.</summary>
     public string? DofConfigFolder { get; set; }
+
+    /// <summary>A cloud-synced folder (OneDrive/Dropbox/…) used for optional push/pull synchronization; disabled when null.</summary>
+    public string? CloudSyncFolder { get; set; }
 }

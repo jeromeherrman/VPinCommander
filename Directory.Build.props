@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Product>VPin Commander</Product>
+    <Authors>VPin Commander contributors</Authors>
+    <Copyright>Copyright (c) 2026 VPin Commander contributors</Copyright>
+    <RepositoryUrl>https://github.com/jeromeherrman/VPinCommander</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

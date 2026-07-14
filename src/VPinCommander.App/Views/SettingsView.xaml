@@ -60,6 +60,17 @@
         <Button Content="Create backup…" Command="{Binding BackupCommand}" Padding="14,8" />
         <Button Content="Restore backup…" Command="{Binding RestoreCommand}" Padding="14,8" Margin="12,0,0,0" />
       </StackPanel>
+
+      <TextBlock Text="Cloud synchronization (optional)" FontWeight="SemiBold" FontSize="16" Margin="0,32,0,4" />
+      <TextBlock Text="Point this at any folder your cloud client already syncs (OneDrive, Dropbox, Google Drive). Push writes the database + settings there; Pull restores them on another machine. Save settings after changing the folder."
+                 Foreground="#666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6" />
+      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,8"
+               Text="{Binding CloudFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <StackPanel Orientation="Horizontal">
+        <Button Content="Push to cloud" Command="{Binding CloudPushCommand}" Padding="14,8" />
+        <Button Content="Pull from cloud…" Command="{Binding CloudPullCommand}" Padding="14,8" Margin="12,0,0,0" />
+        <TextBlock Text="{Binding CloudStatusText}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#666" />
+      </StackPanel>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

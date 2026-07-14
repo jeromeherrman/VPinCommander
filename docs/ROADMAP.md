@@ -25,7 +25,10 @@
 - [x] Excel export
 - [x] Backup/restore
 
-## Milestone 5 — Sync & polish
-- [ ] Optional cloud synchronization of the database
-- [ ] Installer / winget package
-- [ ] First stable release
+## Milestone 5 — Sync & polish (in progress)
+- [x] Optional cloud synchronization of the database (push/pull via any cloud-synced folder)
+- [x] EF Core migrations replace the recreate-on-schema-change strategy
+- [x] CI (build + test) and tagged-release workflows
+- [x] First release (v0.1.0, GitHub release zip)
+- [ ] winget package (requires the repository to be public first)
+- [ ] Installer (MSI/MSIX) if the community asks for more than the portable zip
