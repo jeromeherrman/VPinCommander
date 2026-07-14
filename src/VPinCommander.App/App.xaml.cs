@@ -7,11 +7,15 @@ using VPinCommander.App.ViewModels;
 using VPinCommander.Core;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
+using System.Net.Http;
 using VPinCommander.Core.Services;
 using VPinCommander.Core.Settings;
+using VPinCommander.Core.Updates;
 using VPinCommander.Data;
+using VPinCommander.Data.Export;
 using VPinCommander.Data.Integrations;
 using VPinCommander.Data.Services;
+using VPinCommander.Data.Updates;
 using VPinCommander.Data.Vpx;
 
 namespace VPinCommander.App;
@@ -33,6 +37,14 @@ public partial class App : Application
                 services.AddSingleton<IInventoryStore, InventoryStore>();
                 services.AddSingleton<IMediaManager, MediaManager>();
                 services.AddSingleton<IRomManager, RomManager>();
+                services.AddSingleton<IExcelExporter, ExcelExporter>();
+                services.AddSingleton<IBackupService, BackupService>();
+                services.AddSingleton(new HttpClient
+                {
+                    DefaultRequestHeaders = { { "User-Agent", "VPinCommander" } },
+                    Timeout = TimeSpan.FromSeconds(60),
+                });
+                services.AddSingleton<IUpdateChecker, VpsUpdateChecker>();
                 services.AddSingleton<PopperIntegration>();
                 services.AddSingleton<PinballXIntegration>();
 
@@ -43,6 +55,7 @@ public partial class App : Application
                 services.AddSingleton<HealthViewModel>();
                 services.AddSingleton<MediaViewModel>();
                 services.AddSingleton<RomsViewModel>();
+                services.AddSingleton<UpdatesViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();

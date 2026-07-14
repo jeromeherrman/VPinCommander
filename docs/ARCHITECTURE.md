@@ -39,6 +39,13 @@ A `.vpx` table is an OLE compound file. `VpxMetadataReader` (Data, using OpenMcd
 
 Content operations are conservative by design: `MediaManager.AssignToTableAsync` renames a media file to its table's name (never moves it across folders, never overwrites); `RomManager.QuarantineAsync` moves ROM files to `%APPDATA%\VPinCommander\Quarantine` instead of deleting, so every destructive-looking action is reversible by hand.
 
+## Lifecycle
+
+- **Version tracking** — every scan appends `TableVersionChange` rows when a table file appears or changes (size, modified date, or TableInfo version), giving a local history of what got added/updated when.
+- **Update notifications** — `VpsUpdateChecker` (Data) downloads the community Virtual Pinball Spreadsheet database (`vpsdb.json`, cached 24h under `%APPDATA%\VPinCommander`, stale cache used offline). `UpdateMatcher` (Core, pure) matches tables by normalized title with manufacturer/year tie-breakers from the conventional `Title (Manufacturer Year)` stem, compares the local TableInfo version against the newest VPX release, and deliberately skips ambiguous matches rather than guessing.
+- **Excel export** — `ExcelExporter` (Data, ClosedXML) writes Tables/ROMs/Media/Front-end games/Health/Version history sheets.
+- **Backup/restore** — `BackupService` checkpoints the WAL, zips the database + settings; restore validates the zip, keeps a `.pre-restore` copy, and requires an app restart.
+
 ## Front-end integrations
 
 `IFrontEndIntegration` (Core) is the adapter seam; adapters live in Data:

@@ -15,11 +15,12 @@ public partial class MainViewModel : ObservableObject
         MediaViewModel media,
         RomsViewModel roms,
         HealthViewModel health,
+        UpdatesViewModel updates,
         PopperViewModel popper,
         PinballXViewModel pinballX,
         SettingsViewModel settings)
     {
-        Pages = new PageViewModel[] { dashboard, tables, media, roms, health, popper, pinballX, settings };
+        Pages = new PageViewModel[] { dashboard, tables, media, roms, health, updates, popper, pinballX, settings };
         CurrentPage = dashboard;
     }
 

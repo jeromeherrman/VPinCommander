@@ -19,11 +19,11 @@
 - [x] Automatic dependency resolution (B2S backglass, PuP-Packs, altcolor, altsound)
 - [x] DOF/rumble support detection (DOF config scan)
 
-## Milestone 4 — Lifecycle
-- [ ] Version tracking of tables/backglasses
-- [ ] Update notifications (VPUniverse/VPForums feeds where APIs permit)
-- [ ] Excel export
-- [ ] Backup/restore
+## Milestone 4 — Lifecycle (done)
+- [x] Version tracking of tables (history of added/updated files per scan)
+- [x] Update notifications (Virtual Pinball Spreadsheet database comparison)
+- [x] Excel export
+- [x] Backup/restore
 
 ## Milestone 5 — Sync & polish
 - [ ] Optional cloud synchronization of the database

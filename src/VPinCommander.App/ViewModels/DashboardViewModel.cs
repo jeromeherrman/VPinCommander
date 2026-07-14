@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
+using VPinCommander.Core.Services;
 using VPinCommander.Core.Settings;
 
 namespace VPinCommander.App.ViewModels;
@@ -11,6 +13,7 @@ public partial class DashboardViewModel : PageViewModel
     private readonly IInventoryScanner _scanner;
     private readonly IInventoryStore _store;
     private readonly ISettingsService _settingsService;
+    private readonly IExcelExporter _excelExporter;
 
     public override string Title => "Dashboard";
 
@@ -27,11 +30,33 @@ public partial class DashboardViewModel : PageViewModel
     [NotifyCanExecuteChangedFor(nameof(ScanCommand))]
     private bool _isScanning;
 
-    public DashboardViewModel(IInventoryScanner scanner, IInventoryStore store, ISettingsService settingsService)
+    public DashboardViewModel(
+        IInventoryScanner scanner,
+        IInventoryStore store,
+        ISettingsService settingsService,
+        IExcelExporter excelExporter)
     {
         _scanner = scanner;
         _store = store;
         _settingsService = settingsService;
+        _excelExporter = excelExporter;
+    }
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "Export inventory to Excel",
+            Filter = "Excel workbook (*.xlsx)|*.xlsx",
+            FileName = $"VPinCommander-Inventory-{DateTime.Now:yyyyMMdd}.xlsx",
+        };
+        if (dialog.ShowDialog() != true)
+            return;
+
+        Status = "Exporting…";
+        var result = await _excelExporter.ExportAsync(dialog.FileName);
+        Status = result.Message;
     }
 
     public override Task OnActivatedAsync() => RefreshStatsAsync();

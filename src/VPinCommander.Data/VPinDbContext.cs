@@ -14,6 +14,7 @@ public class VPinDbContext : DbContext
     public DbSet<MediaAsset> Media => Set<MediaAsset>();
     public DbSet<ScanRun> ScanRuns => Set<ScanRun>();
     public DbSet<FrontEndGame> FrontEndGames => Set<FrontEndGame>();
+    public DbSet<TableVersionChange> VersionChanges => Set<TableVersionChange>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -26,6 +26,9 @@
     <DataTemplate DataType="{x:Type vm:RomsViewModel}">
       <views:RomsView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:UpdatesViewModel}">
+      <views:UpdatesView />
+    </DataTemplate>
     <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
       <views:SettingsView />
     </DataTemplate>

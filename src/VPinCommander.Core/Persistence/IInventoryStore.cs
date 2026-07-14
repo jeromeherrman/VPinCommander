@@ -32,4 +32,6 @@ public interface IInventoryStore
     Task<int> ReplaceFrontEndGamesAsync(FrontEndSource source, IReadOnlyList<FrontEndGame> games, CancellationToken ct = default);
 
     Task<IReadOnlyList<FrontEndGame>> GetFrontEndGamesAsync(FrontEndSource? source = null, CancellationToken ct = default);
+
+    Task<IReadOnlyList<TableVersionChange>> GetVersionHistoryAsync(int limit = 200, CancellationToken ct = default);
 }

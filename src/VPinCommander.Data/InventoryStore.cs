@@ -87,6 +87,24 @@ public sealed class InventoryStore : IInventoryStore
             seen.Add(scanned.FilePath);
             if (existing.TryGetValue(scanned.FilePath, out var table))
             {
+                bool fileChanged = table.FileModifiedUtc != scanned.ModifiedUtc
+                    || table.FileSizeBytes != scanned.SizeBytes
+                    || !string.Equals(table.TableVersion, scanned.TableVersion, StringComparison.OrdinalIgnoreCase);
+                if (fileChanged)
+                {
+                    db.VersionChanges.Add(new TableVersionChange
+                    {
+                        FilePath = scanned.FilePath,
+                        TableName = scanned.Name,
+                        Kind = VersionChangeKind.Updated,
+                        OldVersion = table.TableVersion,
+                        NewVersion = scanned.TableVersion,
+                        FileSizeBytes = scanned.SizeBytes,
+                        FileModifiedUtc = scanned.ModifiedUtc,
+                        RecordedUtc = now,
+                    });
+                }
+
                 table.FileSizeBytes = scanned.SizeBytes;
                 table.FileModifiedUtc = scanned.ModifiedUtc;
                 table.LastSeenUtc = now;
@@ -114,6 +132,17 @@ public sealed class InventoryStore : IInventoryStore
                 };
                 ApplyDependencies(newTable, scanned.Dependencies);
                 db.Tables.Add(newTable);
+
+                db.VersionChanges.Add(new TableVersionChange
+                {
+                    FilePath = scanned.FilePath,
+                    TableName = scanned.Name,
+                    Kind = VersionChangeKind.Added,
+                    NewVersion = scanned.TableVersion,
+                    FileSizeBytes = scanned.SizeBytes,
+                    FileModifiedUtc = scanned.ModifiedUtc,
+                    RecordedUtc = now,
+                });
             }
         }
 
@@ -264,6 +293,16 @@ public sealed class InventoryStore : IInventoryStore
     {
         await using var db = await _contextFactory.CreateDbContextAsync(ct);
         return await db.Media.AsNoTracking().OrderBy(m => m.FileName).ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<TableVersionChange>> GetVersionHistoryAsync(int limit = 200, CancellationToken ct = default)
+    {
+        await using var db = await _contextFactory.CreateDbContextAsync(ct);
+        return await db.VersionChanges.AsNoTracking()
+            .OrderByDescending(c => c.RecordedUtc)
+            .ThenByDescending(c => c.Id)
+            .Take(limit)
+            .ToListAsync(ct);
     }
 
     public async Task<IReadOnlyList<ScanRun>> GetScanHistoryAsync(int limit = 20, CancellationToken ct = default)
