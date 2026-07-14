@@ -10,6 +10,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VPinCommander.App", "src\VP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VPinCommander.Core.Tests", "tests\VPinCommander.Core.Tests\VPinCommander.Core.Tests.csproj", "{A1000000-0000-4000-8000-000000000004}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VPinCommander.Data.Tests", "tests\VPinCommander.Data.Tests\VPinCommander.Data.Tests.csproj", "{A1000000-0000-4000-8000-000000000005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{A1000000-0000-4000-8000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1000000-0000-4000-8000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1000000-0000-4000-8000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000000-0000-4000-8000-000000000005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000000-0000-4000-8000-000000000005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000000-0000-4000-8000-000000000005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000000-0000-4000-8000-000000000005}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,14 +1,14 @@
 # Roadmap
 
-## Milestone 1 — Core foundation (in progress)
+## Milestone 1 — Core foundation (done)
 - [x] Solution skeleton (Core / Data / App / Tests)
-- [ ] SQLite database + EF Core model
-- [ ] Automatic cabinet inventory scan (tables, ROMs, media)
-- [ ] WPF UI shell: Dashboard, Tables, Settings
-- [ ] Settings persistence (scan folders)
+- [x] SQLite database + EF Core model
+- [x] Automatic cabinet inventory scan (tables, ROMs, media)
+- [x] WPF UI shell: Dashboard, Tables, Settings
+- [x] Settings persistence (scan folders)
 
-## Milestone 2 — Make it useful on a real cabinet
-- [ ] PinUP Popper integration (read `PUPDatabase.db`, match games to inventory)
+## Milestone 2 — Make it useful on a real cabinet (in progress)
+- [x] PinUP Popper integration (read `PUPDatabase.db`, match games to inventory)
 - [ ] PinballX integration (XML database import)
 - [ ] Table ↔ ROM ↔ media matching via VPX script parsing (`cGameName`)
 - [ ] Health report v1: missing ROMs, missing media, orphaned files

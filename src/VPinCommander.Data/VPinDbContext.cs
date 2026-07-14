@@ -13,11 +13,13 @@ public class VPinDbContext : DbContext
     public DbSet<Rom> Roms => Set<Rom>();
     public DbSet<MediaAsset> Media => Set<MediaAsset>();
     public DbSet<ScanRun> ScanRuns => Set<ScanRun>();
+    public DbSet<FrontEndGame> FrontEndGames => Set<FrontEndGame>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<GameTable>().HasIndex(t => t.FilePath).IsUnique();
         modelBuilder.Entity<Rom>().HasIndex(r => r.FilePath).IsUnique();
         modelBuilder.Entity<MediaAsset>().HasIndex(m => m.FilePath).IsUnique();
+        modelBuilder.Entity<FrontEndGame>().HasIndex(g => new { g.Source, g.ExternalId }).IsUnique();
     }
 }

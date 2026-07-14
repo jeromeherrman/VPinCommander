@@ -8,4 +8,7 @@ public class AppSettings
     public List<string> RomFolders { get; set; } = new();
 
     public List<string> MediaFolders { get; set; } = new();
+
+    /// <summary>PinUP Popper system folder (contains PUPDatabase.db); auto-detected when null.</summary>
+    public string? PinUpSystemFolder { get; set; }
 }

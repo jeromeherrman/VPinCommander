@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using VPinCommander.Core.Matching;
 using VPinCommander.Core.Models;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
@@ -36,7 +37,44 @@ public sealed class InventoryStore : IInventoryStore
         db.ScanRuns.Add(run);
 
         await db.SaveChangesAsync(ct);
+        await RematchFrontEndGamesAsync(db, ct);
         return run;
+    }
+
+    /// <summary>Front-end matches can change whenever the inventory changes, so rematch after every scan.</summary>
+    private static async Task RematchFrontEndGamesAsync(VPinDbContext db, CancellationToken ct)
+    {
+        var games = await db.FrontEndGames.ToListAsync(ct);
+        if (games.Count == 0)
+            return;
+
+        var tables = await db.Tables.Where(t => !t.IsMissing).ToListAsync(ct);
+        GameMatcher.Match(games, tables);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<int> ReplaceFrontEndGamesAsync(FrontEndSource source, IReadOnlyList<FrontEndGame> games, CancellationToken ct = default)
+    {
+        await using var db = await _contextFactory.CreateDbContextAsync(ct);
+
+        var stale = await db.FrontEndGames.Where(g => g.Source == source).ToListAsync(ct);
+        db.FrontEndGames.RemoveRange(stale);
+        db.FrontEndGames.AddRange(games);
+
+        var tables = await db.Tables.Where(t => !t.IsMissing).ToListAsync(ct);
+        GameMatcher.Match(games, tables);
+
+        await db.SaveChangesAsync(ct);
+        return games.Count;
+    }
+
+    public async Task<IReadOnlyList<FrontEndGame>> GetFrontEndGamesAsync(FrontEndSource? source = null, CancellationToken ct = default)
+    {
+        await using var db = await _contextFactory.CreateDbContextAsync(ct);
+        var query = db.FrontEndGames.AsNoTracking();
+        if (source is not null)
+            query = query.Where(g => g.Source == source);
+        return await query.OrderBy(g => g.DisplayName).ToListAsync(ct);
     }
 
     private static async Task UpsertTablesAsync(VPinDbContext db, ScanResult result, DateTime now, CancellationToken ct)
@@ -187,6 +225,8 @@ public sealed class InventoryStore : IInventoryStore
             MissingFiles: await db.Tables.CountAsync(t => t.IsMissing, ct)
                         + await db.Roms.CountAsync(r => r.IsMissing, ct)
                         + await db.Media.CountAsync(m => m.IsMissing, ct),
+            FrontEndGames: await db.FrontEndGames.CountAsync(ct),
+            UnmatchedFrontEndGames: await db.FrontEndGames.CountAsync(g => g.MatchStatus == MatchStatus.Unmatched, ct),
             LastScanUtc: lastScan?.CompletedUtc);
     }
 

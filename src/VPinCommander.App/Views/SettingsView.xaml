@@ -30,6 +30,12 @@
       <TextBox Style="{StaticResource FolderBox}"
                Text="{Binding MediaFoldersText, UpdateSourceTrigger=PropertyChanged}" />
 
+      <TextBlock Text="PinUP Popper system folder" FontWeight="SemiBold" />
+      <TextBlock Text="Folder containing PUPDatabase.db (e.g. C:\vPinball\PinUPSystem). Leave empty to auto-detect."
+                 Foreground="#666" FontSize="12" Margin="0,2,0,0" />
+      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
+               Text="{Binding PinUpFolderText, UpdateSourceTrigger=PropertyChanged}" />
+
       <StackPanel Orientation="Horizontal">
         <Button Content="Save settings" Command="{Binding SaveCommand}" Padding="20,10" FontWeight="SemiBold" />
         <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#2E7D32" />

@@ -19,6 +19,7 @@ Dependency rule: `App → Data → Core`. Core never references Data or App, so 
 - **Rom** — a PinMAME ROM archive (`.zip`) in a ROM folder.
 - **MediaAsset** — artwork/audio/video (wheel images, backglass, playfield video, DMD, launch audio…), categorized by extension and folder heuristics.
 - **ScanRun** — one execution of the inventory scanner, with counts and timing, kept as history.
+- **FrontEndGame** — a game entry imported from a front-end (PinUP Popper today, PinballX later), carrying the front-end's metadata (ROM, manufacturer, year) and a `MatchStatus` linking it to the scanned inventory.
 
 ## Inventory scanning (Milestone 1)
 
@@ -26,10 +27,14 @@ Dependency rule: `App → Data → Core`. Core never references Data or App, so 
 
 Matching between tables ↔ ROMs ↔ media is filename-stem based in M1. Later milestones will parse the table script from the VPX OLE compound file to read the real `cGameName` ROM reference.
 
+## Front-end integrations
+
+`IFrontEndIntegration` (Core) is the adapter seam; `PopperIntegration` (Data) implements it by opening Popper's `PUPDatabase.db` read-only with Microsoft.Data.Sqlite. Popper's schema varies across versions, so every column read is presence-checked. Imports are wholesale replacements per source. `GameMatcher` (Core, pure logic) then links games to inventory tables — by resolved path, then file name, then name stem — and marks non-VPX/FP games (e.g. Pinball FX) as `NotApplicable`. Matches are recomputed after every inventory scan.
+
 ## Persistence
 
 - SQLite database at `%APPDATA%\VPinCommander\vpincommander.db`.
-- EF Core with `EnsureCreated` during M1; will switch to migrations before the first public release.
+- EF Core with `EnsureCreated` plus a `PRAGMA user_version` schema stamp (`DatabaseInitializer`): on version mismatch the old file is backed up and recreated, which is acceptable pre-release because everything stored is re-derivable (scans, imports). Will switch to EF migrations before the first public release.
 - App settings (folder paths, preferences) as JSON at `%APPDATA%\VPinCommander\settings.json` via `SettingsService`.
 
 ## UI

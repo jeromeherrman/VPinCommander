@@ -49,6 +49,21 @@
       </Border>
     </StackPanel>
 
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+      <Border Style="{StaticResource StatCard}">
+        <StackPanel>
+          <TextBlock Text="{Binding PopperGameCount}" Style="{StaticResource StatNumber}" />
+          <TextBlock Text="Popper games" Style="{StaticResource StatLabel}" />
+        </StackPanel>
+      </Border>
+      <Border Style="{StaticResource StatCard}">
+        <StackPanel>
+          <TextBlock Text="{Binding UnmatchedGameCount}" Style="{StaticResource StatNumber}" Foreground="#C0392B" />
+          <TextBlock Text="Games missing table files" Style="{StaticResource StatLabel}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
       <Button Content="Scan cabinet"
               Command="{Binding ScanCommand}"

@@ -18,6 +18,8 @@ public partial class DashboardViewModel : PageViewModel
     [ObservableProperty] private int _romCount;
     [ObservableProperty] private int _mediaCount;
     [ObservableProperty] private int _missingCount;
+    [ObservableProperty] private int _popperGameCount;
+    [ObservableProperty] private int _unmatchedGameCount;
     [ObservableProperty] private string _lastScanText = "Never";
     [ObservableProperty] private string _status = "Ready.";
 
@@ -76,6 +78,8 @@ public partial class DashboardViewModel : PageViewModel
             RomCount = stats.Roms;
             MediaCount = stats.MediaAssets;
             MissingCount = stats.MissingFiles;
+            PopperGameCount = stats.FrontEndGames;
+            UnmatchedGameCount = stats.UnmatchedFrontEndGames;
             LastScanText = stats.LastScanUtc?.ToLocalTime().ToString("g") ?? "Never";
         }
         catch (Exception ex)

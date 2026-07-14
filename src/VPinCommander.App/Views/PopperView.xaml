@@ -1,0 +1,47 @@
+<UserControl x:Class="VPinCommander.App.Views.PopperView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+      <TextBlock Text="PinUP Popper" FontSize="24" FontWeight="SemiBold" />
+      <TextBlock Text="{Binding DatabasePathText}" Foreground="#666" Margin="0,4,0,12" TextWrapping="Wrap" />
+      <StackPanel Orientation="Horizontal">
+        <Button Content="Import from Popper"
+                Command="{Binding ImportCommand}"
+                Padding="20,10" FontWeight="SemiBold" />
+        <TextBlock Text="Show:" VerticalAlignment="Center" Margin="24,0,8,0" Foreground="#666" />
+        <ComboBox ItemsSource="{Binding FilterOptions}"
+                  SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"
+                  MinWidth="160" VerticalAlignment="Center" />
+      </StackPanel>
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" Foreground="#444" Margin="0,8,0,0" TextWrapping="Wrap" />
+
+    <DataGrid ItemsSource="{Binding Games}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              GridLinesVisibility="Horizontal"
+              HeadersVisibility="Column">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Game" Binding="{Binding DisplayName}" Width="2*" />
+        <DataGridTextColumn Header="Emulator" Binding="{Binding EmulatorName}" Width="Auto" />
+        <DataGridTextColumn Header="File" Binding="{Binding GameFileName}" Width="2*" />
+        <DataGridTextColumn Header="ROM" Binding="{Binding RomName}" Width="Auto" />
+        <DataGridTextColumn Header="Year" Binding="{Binding Year}" Width="Auto" />
+        <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="Auto" />
+        <DataGridTextColumn Header="Match" Binding="{Binding MatchStatus}" Width="Auto" />
+      </DataGrid.Columns>
+      <DataGrid.RowStyle>
+        <Style TargetType="DataGridRow">
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding MatchStatus}" Value="Unmatched">
+              <Setter Property="Foreground" Value="#C0392B" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.RowStyle>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

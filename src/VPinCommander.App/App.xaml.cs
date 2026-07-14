@@ -5,10 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VPinCommander.App.ViewModels;
 using VPinCommander.Core;
+using VPinCommander.Core.Integrations;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Scanning;
 using VPinCommander.Core.Settings;
 using VPinCommander.Data;
+using VPinCommander.Data.Integrations;
 
 namespace VPinCommander.App;
 
@@ -26,9 +28,11 @@ public partial class App : Application
                 services.AddDbContextFactory<VPinDbContext>(options =>
                     options.UseSqlite($"Data Source={AppPaths.DatabasePath}"));
                 services.AddSingleton<IInventoryStore, InventoryStore>();
+                services.AddSingleton<IFrontEndIntegration, PopperIntegration>();
 
                 services.AddSingleton<DashboardViewModel>();
                 services.AddSingleton<TablesViewModel>();
+                services.AddSingleton<PopperViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();
@@ -42,11 +46,7 @@ public partial class App : Application
 
         Directory.CreateDirectory(AppPaths.DataFolder);
         var factory = _host.Services.GetRequiredService<IDbContextFactory<VPinDbContext>>();
-        using (var db = factory.CreateDbContext())
-        {
-            // M1 only; replaced by EF migrations before the first public release.
-            db.Database.EnsureCreated();
-        }
+        DatabaseInitializer.Initialize(factory, AppPaths.DatabasePath);
 
         var window = _host.Services.GetRequiredService<MainWindow>();
         window.Show();

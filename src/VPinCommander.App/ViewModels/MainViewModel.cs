@@ -9,9 +9,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private PageViewModel? _currentPage;
 
-    public MainViewModel(DashboardViewModel dashboard, TablesViewModel tables, SettingsViewModel settings)
+    public MainViewModel(DashboardViewModel dashboard, TablesViewModel tables, PopperViewModel popper, SettingsViewModel settings)
     {
-        Pages = new PageViewModel[] { dashboard, tables, settings };
+        Pages = new PageViewModel[] { dashboard, tables, popper, settings };
         CurrentPage = dashboard;
     }
 
