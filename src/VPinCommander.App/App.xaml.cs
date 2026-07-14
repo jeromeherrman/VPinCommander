@@ -26,6 +26,26 @@ public partial class App : Application
 
     public App()
     {
+        // Unexpected errors must show up and get logged, never silently kill the app.
+        DispatcherUnhandledException += (_, e) =>
+        {
+            LogCrash(e.Exception);
+            MessageBox.Show(
+                $"Something went wrong:\n\n{e.Exception.Message}\n\nDetails were saved to:\n{CrashLogFolder}",
+                "VPin Commander", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (MainWindow is null)
+            {
+                Shutdown(1); // startup failed before a window existed; nothing to keep alive
+            }
+            e.Handled = true;
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => LogCrash(e.ExceptionObject as Exception);
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            LogCrash(e.Exception);
+            e.SetObserved();
+        };
+
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
@@ -80,5 +100,22 @@ public partial class App : Application
     {
         _host.Dispose();
         base.OnExit(e);
+    }
+
+    private static string CrashLogFolder => Path.Combine(AppPaths.DataFolder, "logs");
+
+    private static void LogCrash(Exception? exception)
+    {
+        try
+        {
+            Directory.CreateDirectory(CrashLogFolder);
+            File.AppendAllText(
+                Path.Combine(CrashLogFolder, $"crash-{DateTime.Now:yyyyMMdd}.log"),
+                $"[{DateTime.Now:O}]{Environment.NewLine}{exception}{Environment.NewLine}{Environment.NewLine}");
+        }
+        catch
+        {
+            // Logging must never throw from an exception handler.
+        }
     }
 }

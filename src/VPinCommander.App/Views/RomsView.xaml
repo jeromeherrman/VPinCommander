@@ -28,7 +28,8 @@
         <DataGridTextColumn Header="ROM" Binding="{Binding Name}" Width="*" />
         <DataGridTextColumn Header="Referenced by" Binding="{Binding ReferenceCount}" Width="Auto" />
         <DataGridTextColumn Header="Copies" Binding="{Binding CopyCount}" Width="Auto" />
-        <DataGridCheckBoxColumn Header="Missing" Binding="{Binding IsMissing}" Width="Auto" />
+        <!-- Explicit OneWay: the default TwoWay crashes on RomRow's read-only property. -->
+        <DataGridCheckBoxColumn Header="Missing" Binding="{Binding IsMissing, Mode=OneWay}" Width="Auto" />
         <DataGridTextColumn Header="Size (bytes)" Binding="{Binding FileSizeBytes, StringFormat=N0}" Width="Auto" />
         <DataGridTextColumn Header="Path" Binding="{Binding FilePath}" Width="3*" />
       </DataGrid.Columns>

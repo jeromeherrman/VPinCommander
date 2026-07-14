@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 2026-07-14
+
+### Fixed
+- Opening the ROMs page crashed the app: the "Missing" checkbox column used WPF's default TwoWay binding against a read-only row property. Now explicitly OneWay.
+- A corrupt database no longer prevents startup: the file (and its WAL/SHM sidecars) is quarantined as `.corrupt-<timestamp>` and a fresh database is created.
+- Unhandled errors now write a crash log to `%APPDATA%\VPinCommander\logs` and show an error dialog instead of silently terminating the app.
+
 ## 0.1.0 — 2026-07-14
 
 First release. Everything below landed since the project started.

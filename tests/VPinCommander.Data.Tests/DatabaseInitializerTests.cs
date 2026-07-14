@@ -79,6 +79,23 @@ public sealed class DatabaseInitializerTests : IDisposable
     }
 
     [Fact]
+    public void Corrupt_database_is_quarantined_and_recreated()
+    {
+        File.WriteAllText(_dbPath, "this is definitely not a SQLite database");
+        File.WriteAllText(_dbPath + "-wal", "stale wal");
+
+        var backup = DatabaseInitializer.Initialize(_factory, _dbPath);
+
+        Assert.NotNull(backup);
+        Assert.Contains(".corrupt-", backup);
+        Assert.True(File.Exists(backup)); // corrupt file kept for forensics
+
+        using var db = _factory.CreateDbContext();
+        Assert.Contains(DatabaseInitializer.InitialMigrationId, db.Database.GetAppliedMigrations());
+        Assert.Empty(db.Roms);
+    }
+
+    [Fact]
     public void Initialize_is_idempotent()
     {
         DatabaseInitializer.Initialize(_factory, _dbPath);

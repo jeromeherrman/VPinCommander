@@ -21,6 +21,13 @@ public static class DatabaseInitializer
     {
         string? backupPath = null;
 
+        if (File.Exists(dbPath) && !IsHealthy(factory))
+        {
+            // A corrupt database must never prevent startup: set it aside and start fresh.
+            SqliteConnection.ClearAllPools();
+            backupPath = MoveCorruptAside(dbPath);
+        }
+
         if (File.Exists(dbPath))
         {
             bool hasHistory;
@@ -60,19 +67,49 @@ public static class DatabaseInitializer
     }
 
     private static bool HasMigrationsHistory(VPinDbContext db) =>
-        ExecuteScalar(db, "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '__EFMigrationsHistory'") > 0;
+        Convert.ToInt64(ExecuteScalar(db,
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '__EFMigrationsHistory'")) > 0;
 
     private static long ReadUserVersion(VPinDbContext db) =>
-        ExecuteScalar(db, "PRAGMA user_version");
+        Convert.ToInt64(ExecuteScalar(db, "PRAGMA user_version"));
 
-    private static long ExecuteScalar(VPinDbContext db, string sql)
+    /// <summary>SQLite integrity check; also false when the file cannot even be opened as a database.</summary>
+    private static bool IsHealthy(IDbContextFactory<VPinDbContext> factory)
+    {
+        try
+        {
+            using var db = factory.CreateDbContext();
+            var result = Convert.ToString(ExecuteScalar(db, "PRAGMA quick_check(1)"));
+            return string.Equals(result, "ok", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (SqliteException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>Moves the corrupt database and its WAL/SHM sidecars aside for forensics.</summary>
+    private static string MoveCorruptAside(string dbPath)
+    {
+        var suffix = $".corrupt-{DateTime.Now:yyyyMMdd-HHmmss}";
+        var corruptPath = dbPath + suffix;
+        File.Move(dbPath, corruptPath);
+        foreach (var sidecar in new[] { "-wal", "-shm" })
+        {
+            if (File.Exists(dbPath + sidecar))
+                File.Move(dbPath + sidecar, dbPath + suffix + sidecar);
+        }
+        return corruptPath;
+    }
+
+    private static object? ExecuteScalar(VPinDbContext db, string sql)
     {
         var connection = db.Database.GetDbConnection();
         if (connection.State != System.Data.ConnectionState.Open)
             connection.Open();
         using var command = connection.CreateCommand();
         command.CommandText = sql;
-        return Convert.ToInt64(command.ExecuteScalar());
+        return command.ExecuteScalar();
     }
 
     private static void BaselineToInitialMigration(VPinDbContext db)
