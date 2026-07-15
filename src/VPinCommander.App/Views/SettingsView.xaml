@@ -19,40 +19,75 @@
                  Foreground="#666" Margin="0,0,0,20" />
 
       <TextBlock Text="Table folders (.vpx, .fp)" FontWeight="SemiBold" />
-      <TextBox Style="{StaticResource FolderBox}"
-               Text="{Binding TableFoldersText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Add folder…" VerticalAlignment="Top"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="tables"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox Style="{StaticResource FolderBox}" Margin="0"
+                 Text="{Binding TableFoldersText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="ROM folders (.zip)" FontWeight="SemiBold" />
-      <TextBox Style="{StaticResource FolderBox}"
-               Text="{Binding RomFoldersText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Add folder…" VerticalAlignment="Top"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="roms"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox Style="{StaticResource FolderBox}" Margin="0"
+                 Text="{Binding RomFoldersText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="Media folders (images, video, audio)" FontWeight="SemiBold" />
-      <TextBox Style="{StaticResource FolderBox}"
-               Text="{Binding MediaFoldersText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Add folder…" VerticalAlignment="Top"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="media"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox Style="{StaticResource FolderBox}" Margin="0"
+                 Text="{Binding MediaFoldersText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="PinUP Popper system folder" FontWeight="SemiBold" />
       <TextBlock Text="Folder containing PUPDatabase.db (e.g. C:\vPinball\PinUPSystem). Leave empty to auto-detect."
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
-      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
-               Text="{Binding PinUpFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Browse…"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="pinup"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox FontFamily="Consolas" Padding="6"
+                 Text="{Binding PinUpFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="PinballX install folder" FontWeight="SemiBold" />
       <TextBlock Text="Folder containing Databases\ and Config\PinballX.ini (e.g. C:\PinballX). Leave empty to auto-detect."
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
-      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
-               Text="{Binding PinballXFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Browse…"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="pinballx"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox FontFamily="Consolas" Padding="6"
+                 Text="{Binding PinballXFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="PinballY install folder" FontWeight="SemiBold" />
       <TextBlock Text="Folder containing Databases\ and Settings.txt (e.g. C:\PinballY). Leave empty to auto-detect."
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
-      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
-               Text="{Binding PinballYFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Browse…"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="pinbally"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox FontFamily="Consolas" Padding="6"
+                 Text="{Binding PinballYFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="DOF config folder" FontWeight="SemiBold" />
       <TextBlock Text="Folder containing directoutputconfig*.ini from the DOF Config Tool (e.g. C:\DirectOutput). Leave empty to auto-detect."
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
-      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
-               Text="{Binding DofFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Browse…"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="dof"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox FontFamily="Consolas" Padding="6"
+                 Text="{Binding DofFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <StackPanel Orientation="Horizontal">
         <Button Content="Save settings" Command="{Binding SaveCommand}" Padding="20,10" FontWeight="SemiBold" />
@@ -64,7 +99,7 @@
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
       <DockPanel Margin="0,4,0,16">
         <Button DockPanel.Dock="Right" Content="Browse…"
-                Command="{Binding BrowseDownloadsFolderCommand}"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="downloads"
                 Padding="12,6" Margin="8,0,0,0" />
         <TextBox FontFamily="Consolas" Padding="6"
                  Text="{Binding DownloadsFolderText, UpdateSourceTrigger=PropertyChanged}" />
@@ -81,8 +116,13 @@
       <TextBlock Text="Cloud synchronization (optional)" FontWeight="SemiBold" FontSize="16" Margin="0,32,0,4" />
       <TextBlock Text="Point this at any folder your cloud client already syncs (OneDrive, Dropbox, Google Drive). Push writes the database + settings there; Pull restores them on another machine. Save settings after changing the folder."
                  Foreground="#666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6" />
-      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,8"
-               Text="{Binding CloudFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,8">
+        <Button DockPanel.Dock="Right" Content="Browse…"
+                Command="{Binding BrowseFolderCommand}" CommandParameter="cloud"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox FontFamily="Consolas" Padding="6"
+                 Text="{Binding CloudFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
       <StackPanel Orientation="Horizontal">
         <Button Content="Push to cloud" Command="{Binding CloudPushCommand}" Padding="14,8" />
         <Button Content="Pull from cloud…" Command="{Binding CloudPullCommand}" Padding="14,8" Margin="12,0,0,0" />

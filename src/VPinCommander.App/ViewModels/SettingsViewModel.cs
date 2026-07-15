@@ -85,17 +85,62 @@ public partial class SettingsViewModel : PageViewModel
     }
 
     [RelayCommand]
-    private void BrowseDownloadsFolder()
+    private void BrowseFolder(string target)
     {
-        var dialog = new OpenFolderDialog { Title = "Choose the downloads folder to monitor" };
-        if (!string.IsNullOrWhiteSpace(DownloadsFolderText) && Directory.Exists(DownloadsFolderText))
-            dialog.InitialDirectory = DownloadsFolderText;
-
-        if (dialog.ShowDialog() == true)
+        var title = target switch
         {
-            DownloadsFolderText = dialog.FolderName;
-            Status = "Downloads folder selected — click Save settings to apply it.";
+            "tables" => "Add a table folder",
+            "roms" => "Add a ROM folder",
+            "media" => "Add a media folder",
+            "pinup" => "Choose the PinUP Popper system folder",
+            "pinballx" => "Choose the PinballX install folder",
+            "pinbally" => "Choose the PinballY install folder",
+            "dof" => "Choose the DOF config folder",
+            "downloads" => "Choose the downloads folder to monitor",
+            "cloud" => "Choose the cloud sync folder",
+            _ => "Choose a folder",
+        };
+        var current = target switch
+        {
+            "pinup" => PinUpFolderText,
+            "pinballx" => PinballXFolderText,
+            "pinbally" => PinballYFolderText,
+            "dof" => DofFolderText,
+            "downloads" => DownloadsFolderText,
+            "cloud" => CloudFolderText,
+            _ => null,
+        };
+
+        var dialog = new OpenFolderDialog { Title = title };
+        if (!string.IsNullOrWhiteSpace(current) && Directory.Exists(current))
+            dialog.InitialDirectory = current;
+        if (dialog.ShowDialog() != true)
+            return;
+        var folder = dialog.FolderName;
+
+        switch (target)
+        {
+            case "tables": TableFoldersText = AppendFolderLine(TableFoldersText, folder); break;
+            case "roms": RomFoldersText = AppendFolderLine(RomFoldersText, folder); break;
+            case "media": MediaFoldersText = AppendFolderLine(MediaFoldersText, folder); break;
+            case "pinup": PinUpFolderText = folder; break;
+            case "pinballx": PinballXFolderText = folder; break;
+            case "pinbally": PinballYFolderText = folder; break;
+            case "dof": DofFolderText = folder; break;
+            case "downloads": DownloadsFolderText = folder; break;
+            case "cloud": CloudFolderText = folder; break;
+            default: return;
         }
+        Status = "Folder selected — click Save settings to apply.";
+    }
+
+    private static string AppendFolderLine(string existing, string folder)
+    {
+        var lines = existing.Split(new[] { '\r', '\n' },
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (lines.Contains(folder, StringComparer.OrdinalIgnoreCase))
+            return existing; // already listed
+        return lines.Length == 0 ? folder : string.Join(Environment.NewLine, lines.Append(folder));
     }
 
     [RelayCommand]

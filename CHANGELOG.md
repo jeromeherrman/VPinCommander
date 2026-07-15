@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- Browse… button for the "Downloads folder to monitor" setting (native folder picker).
+- Folder pickers for every path field on the Settings page: single-folder fields (PinUP Popper, PinballX, PinballY, DOF, downloads, cloud sync) get a Browse… button; the multi-folder lists (tables, ROMs, media) get an Add folder… button that appends without duplicates.
 
 ## 0.5.0 — 2026-07-15
 
