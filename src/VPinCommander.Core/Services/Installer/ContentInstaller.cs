@@ -344,7 +344,8 @@ public sealed partial class ContentInstaller : IContentInstaller
         int installed = 0, skipped = 0;
         foreach (var entry in archive.Entries.Where(e => e.Name.Length > 0))
         {
-            var relative = entry.FullName;
+            // Some Windows tools write zip entries with backslash separators.
+            var relative = entry.FullName.Replace('\\', '/');
             if (root is not null && relative.StartsWith(root + "/", StringComparison.OrdinalIgnoreCase))
                 relative = relative[(root.Length + 1)..];
             if (relative.Length == 0)
@@ -373,10 +374,11 @@ public sealed partial class ContentInstaller : IContentInstaller
         string? root = null;
         foreach (var entry in archive.Entries.Where(e => e.Name.Length > 0))
         {
-            var separator = entry.FullName.IndexOf('/');
+            var fullName = entry.FullName.Replace('\\', '/');
+            var separator = fullName.IndexOf('/');
             if (separator <= 0)
                 return null; // a top-level file means no single root
-            var candidate = entry.FullName[..separator];
+            var candidate = fullName[..separator];
             if (root is null)
                 root = candidate;
             else if (!root.Equals(candidate, StringComparison.OrdinalIgnoreCase))

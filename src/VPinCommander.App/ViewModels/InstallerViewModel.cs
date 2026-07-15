@@ -14,8 +14,15 @@ public partial class InstallerViewModel : PageViewModel
     private static readonly string[] CandidateExtensions =
         { ".zip", ".vpx", ".vpt", ".fp", ".directb2s", ".pac", ".vni", ".pal", ".crz" };
 
+    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+        { ".png", ".jpg", ".jpeg", ".gif", ".bmp" };
+
+    private static readonly HashSet<string> PlayableExtensions = new(StringComparer.OrdinalIgnoreCase)
+        { ".mp4", ".f4v", ".avi", ".mkv", ".wmv", ".mov", ".mp3", ".wav", ".ogg", ".flac" };
+
     private readonly IContentInstaller _installer;
     private readonly ISettingsService _settingsService;
+    private readonly IMediaPreviewExtractor _previewExtractor;
     private FileSystemWatcher? _watcher;
 
     public override string Title => "Installer";
@@ -31,11 +38,94 @@ public partial class InstallerViewModel : PageViewModel
     [NotifyCanExecuteChangedFor(nameof(ScanDownloadsCommand))]
     private bool _isBusy;
 
-    public InstallerViewModel(IContentInstaller installer, ISettingsService settingsService)
+    public ObservableCollection<PreviewEntry> PreviewEntries { get; } = new();
+
+    [ObservableProperty] private InstallItem? _selectedItem;
+    [ObservableProperty] private PreviewEntry? _selectedPreviewEntry;
+    [ObservableProperty] private string? _previewImagePath;
+    [ObservableProperty] private string? _previewMediaPath;
+    [ObservableProperty] private string _previewNote = "Select a file to preview its media.";
+
+    public InstallerViewModel(
+        IContentInstaller installer,
+        ISettingsService settingsService,
+        IMediaPreviewExtractor previewExtractor)
     {
         _installer = installer;
         _settingsService = settingsService;
+        _previewExtractor = previewExtractor;
         RestartWatcher();
+    }
+
+    partial void OnSelectedItemChanged(InstallItem? value) => UpdatePreviewForItem();
+
+    partial void OnSelectedPreviewEntryChanged(PreviewEntry? value) => ShowPreviewEntry();
+
+    private void UpdatePreviewForItem()
+    {
+        PreviewEntries.Clear();
+        PreviewImagePath = null;
+        PreviewMediaPath = null;
+        SelectedPreviewEntry = null;
+
+        if (SelectedItem is null)
+        {
+            PreviewNote = "Select a file to preview its media.";
+            return;
+        }
+
+        var path = SelectedItem.SourcePath;
+        var ext = Path.GetExtension(path);
+
+        if (ImageExtensions.Contains(ext))
+        {
+            PreviewImagePath = path;
+            PreviewNote = string.Empty;
+        }
+        else if (PlayableExtensions.Contains(ext))
+        {
+            PreviewMediaPath = path;
+            PreviewNote = "Press Play to preview.";
+        }
+        else if (ext.Equals(".zip", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var entry in _previewExtractor.ListPreviewableEntries(path))
+                PreviewEntries.Add(entry);
+            PreviewNote = PreviewEntries.Count == 0
+                ? "No previewable media inside this archive."
+                : $"{PreviewEntries.Count} media file(s) inside — select one to preview.";
+            SelectedPreviewEntry = PreviewEntries.FirstOrDefault(e =>
+                ImageExtensions.Contains(Path.GetExtension(e.EntryPath))) ?? PreviewEntries.FirstOrDefault();
+        }
+        else
+        {
+            PreviewNote = "No preview available for this file type.";
+        }
+    }
+
+    private void ShowPreviewEntry()
+    {
+        if (SelectedItem is null || SelectedPreviewEntry is null)
+            return;
+
+        var temp = _previewExtractor.ExtractToTemp(SelectedItem.SourcePath, SelectedPreviewEntry.EntryPath);
+        if (temp is null)
+        {
+            PreviewNote = "Could not extract this entry for preview.";
+            return;
+        }
+
+        if (ImageExtensions.Contains(Path.GetExtension(temp)))
+        {
+            PreviewMediaPath = null;
+            PreviewImagePath = temp;
+        }
+        else
+        {
+            PreviewImagePath = null;
+            PreviewMediaPath = temp;
+            PreviewNote = "Press Play to preview.";
+        }
     }
 
     public override Task OnActivatedAsync()

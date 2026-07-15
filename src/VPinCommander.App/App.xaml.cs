@@ -62,6 +62,7 @@ public partial class App : Application
                 services.AddSingleton<IBackupService, BackupService>();
                 services.AddSingleton<ICloudSyncService, CloudSyncService>();
                 services.AddSingleton<IContentInstaller, ContentInstaller>();
+                services.AddSingleton<IMediaPreviewExtractor, MediaPreviewExtractor>();
                 services.AddSingleton(new HttpClient
                 {
                     DefaultRequestHeaders = { { "User-Agent", "VPinCommander" } },

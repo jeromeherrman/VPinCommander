@@ -16,6 +16,44 @@
 
     <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" Foreground="#444" Margin="0,8,0,0" TextWrapping="Wrap" />
 
+    <Border DockPanel.Dock="Right" Width="300" Margin="16,0,0,0"
+            Background="#F4F4F8" CornerRadius="8" Padding="12">
+      <StackPanel>
+        <TextBlock Text="Preview" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <Border Height="210" Background="#22000000" CornerRadius="4">
+          <Grid>
+            <TextBlock Text="Select an update to preview it."
+                       Foreground="#888" FontSize="11" TextWrapping="Wrap"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16">
+              <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding SelectedUpdate}" Value="{x:Null}">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </TextBlock.Style>
+            </TextBlock>
+            <Image Source="{Binding SelectedUpdate.ImageUrl, IsAsync=True, TargetNullValue={x:Null}}"
+                   Stretch="Uniform" Margin="4" />
+          </Grid>
+        </Border>
+        <TextBlock Text="{Binding SelectedUpdate.TableName}" FontWeight="SemiBold"
+                   TextWrapping="Wrap" Margin="0,10,0,2" />
+        <TextBlock Foreground="#666" FontSize="12">
+          <Run Text="Installed:" /><Run Text="{Binding SelectedUpdate.LocalVersion, Mode=OneWay}" />
+          <Run Text="  →  Latest:" /><Run Text="{Binding SelectedUpdate.RemoteVersion, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Foreground="#666" FontSize="12" Margin="0,2,0,10">
+          <Run Text="Released:" /><Run Text="{Binding SelectedUpdate.RemoteUpdatedUtc, Mode=OneWay, StringFormat=g}" />
+        </TextBlock>
+        <Button Content="Open download page" Command="{Binding OpenLinkCommand}"
+                Padding="14,8" HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
+
     <DataGrid ItemsSource="{Binding Updates}"
               SelectedItem="{Binding SelectedUpdate, Mode=TwoWay}"
               AutoGenerateColumns="False"

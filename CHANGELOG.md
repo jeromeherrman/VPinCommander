@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Media preview before installing or downloading: the Installer shows a preview pane for the selected file — images display directly, videos/audio get a player, and archives can be browsed so the wheel images, backglass videos, and sounds inside are previewable before anything is installed. The Updates tab shows a large VPS preview with version details for the selected table.
+
 ### Changed
 - The main window now has two tabs: "My Cabinet" (inventory, health, front-ends, settings) and "Downloads" (new table versions and the content installer).
 - The Updates list shows preview thumbnails from the VPS database.

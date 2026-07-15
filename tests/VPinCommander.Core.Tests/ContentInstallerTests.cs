@@ -200,6 +200,21 @@ public sealed class ContentInstallerTests : IDisposable
     }
 
     [Fact]
+    public async Task Backslash_separated_zip_entries_are_handled()
+    {
+        // Some Windows tools write entries as "afm\file" instead of "afm/file".
+        var zip = MakeZip("backslash-pack.zip",
+            (@"afm\afm.pup", "x"),
+            (@"afm\Backglass\bg.mp4", "x"));
+
+        var item = await InstallOne(zip);
+
+        Assert.Equal(ContentKind.PupPack, item.Kind);
+        Assert.True(File.Exists(Path.Combine(_pinup, "PUPVideos", "afm", "afm.pup")));
+        Assert.True(File.Exists(Path.Combine(_pinup, "PUPVideos", "afm", "Backglass", "bg.mp4")));
+    }
+
+    [Fact]
     public async Task Unknown_archive_reports_error_and_is_not_installed()
     {
         var zip = MakeZip("mystery.zip", ("something.xyz", "x"));
