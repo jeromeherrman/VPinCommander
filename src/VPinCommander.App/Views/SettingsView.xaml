@@ -83,6 +83,24 @@
         <Button Content="Pull from cloud…" Command="{Binding CloudPullCommand}" Padding="14,8" Margin="12,0,0,0" />
         <TextBlock Text="{Binding CloudStatusText}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#666" />
       </StackPanel>
+
+      <TextBlock Text="Remote-control server (cabinet mode)" FontWeight="SemiBold" FontSize="16" Margin="0,32,0,4" />
+      <TextBlock Text="Run this on the cabinet so other VPin Commander instances can manage it from the Remote Cabinets tab. Plain HTTP on your LAN, protected by the API key — if clients cannot connect, allow VPin Commander through Windows Firewall."
+                 Foreground="#666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8" />
+      <CheckBox Content="Enable the server on this machine"
+                IsChecked="{Binding ServerEnabled, Mode=TwoWay}" Margin="0,0,0,8" />
+      <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+        <TextBlock Text="Port:" VerticalAlignment="Center" Foreground="#666" />
+        <TextBox Text="{Binding ServerPortText, UpdateSourceTrigger=PropertyChanged}"
+                 Width="70" Padding="4" Margin="8,0,0,0" FontFamily="Consolas" />
+        <TextBlock Text="{Binding ServerStatusText}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#666" FontSize="12" />
+      </StackPanel>
+      <TextBlock Text="API key (paste this into the client's Remote Cabinets tab)" Foreground="#666" FontSize="12" />
+      <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+        <TextBox Text="{Binding ServerApiKeyText, UpdateSourceTrigger=PropertyChanged}"
+                 Width="330" Padding="6" FontFamily="Consolas" />
+        <Button Content="Generate new key" Command="{Binding GenerateApiKeyCommand}" Padding="12,6" Margin="10,0,0,0" />
+      </StackPanel>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

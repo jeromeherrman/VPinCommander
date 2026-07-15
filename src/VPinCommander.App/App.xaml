@@ -35,6 +35,9 @@
     <DataTemplate DataType="{x:Type vm:InstallerViewModel}">
       <views:InstallerView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:CabinetsViewModel}">
+      <views:CabinetsView />
+    </DataTemplate>
     <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
       <views:SettingsView />
     </DataTemplate>

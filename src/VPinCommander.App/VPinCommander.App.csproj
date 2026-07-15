@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\VPinCommander.Core\VPinCommander.Core.csproj" />
     <ProjectReference Include="..\VPinCommander.Data\VPinCommander.Data.csproj" />
+    <ProjectReference Include="..\VPinCommander.Server\VPinCommander.Server.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using VPinCommander.Core.Services;
 using VPinCommander.Core.Settings;
+using VPinCommander.Server;
 
 namespace VPinCommander.App.ViewModels;
 
@@ -13,6 +14,7 @@ public partial class SettingsViewModel : PageViewModel
     private readonly ISettingsService _settingsService;
     private readonly IBackupService _backupService;
     private readonly ICloudSyncService _cloudSyncService;
+    private readonly CabinetApiServer _apiServer;
 
     public override string Title => "Settings";
 
@@ -26,16 +28,22 @@ public partial class SettingsViewModel : PageViewModel
     [ObservableProperty] private string _downloadsFolderText = string.Empty;
     [ObservableProperty] private string _cloudFolderText = string.Empty;
     [ObservableProperty] private string _cloudStatusText = string.Empty;
+    [ObservableProperty] private bool _serverEnabled;
+    [ObservableProperty] private string _serverPortText = "5588";
+    [ObservableProperty] private string _serverApiKeyText = string.Empty;
+    [ObservableProperty] private string _serverStatusText = string.Empty;
     [ObservableProperty] private string _status = string.Empty;
 
     public SettingsViewModel(
         ISettingsService settingsService,
         IBackupService backupService,
-        ICloudSyncService cloudSyncService)
+        ICloudSyncService cloudSyncService,
+        CabinetApiServer apiServer)
     {
         _settingsService = settingsService;
         _backupService = backupService;
         _cloudSyncService = cloudSyncService;
+        _apiServer = apiServer;
         var settings = _settingsService.Load();
         TableFoldersText = string.Join(Environment.NewLine, settings.TableFolders);
         RomFoldersText = string.Join(Environment.NewLine, settings.RomFolders);
@@ -46,12 +54,30 @@ public partial class SettingsViewModel : PageViewModel
         DofFolderText = settings.DofConfigFolder ?? string.Empty;
         DownloadsFolderText = settings.DownloadsFolder ?? string.Empty;
         CloudFolderText = settings.CloudSyncFolder ?? string.Empty;
+        ServerEnabled = settings.ServerEnabled;
+        ServerPortText = settings.ServerPort.ToString();
+        ServerApiKeyText = settings.ServerApiKey ?? string.Empty;
     }
 
     public override Task OnActivatedAsync()
     {
         RefreshCloudStatus();
+        RefreshServerStatus();
         return Task.CompletedTask;
+    }
+
+    private void RefreshServerStatus()
+    {
+        ServerStatusText = _apiServer.IsRunning
+            ? $"Running at {_apiServer.BoundUrl} — clients connect with http://<this-pc>:{ServerPortText} and the API key."
+            : "Stopped.";
+    }
+
+    [RelayCommand]
+    private void GenerateApiKey()
+    {
+        ServerApiKeyText = Guid.NewGuid().ToString("N");
+        Status = "New API key generated — click Save settings to apply it.";
     }
 
     private void RefreshCloudStatus()
@@ -68,12 +94,25 @@ public partial class SettingsViewModel : PageViewModel
     }
 
     [RelayCommand]
-    private void Save()
+    private async Task SaveAsync()
     {
         try
         {
+            if (ServerEnabled && string.IsNullOrWhiteSpace(ServerApiKeyText))
+                ServerApiKeyText = Guid.NewGuid().ToString("N");
+            if (!int.TryParse(ServerPortText, out var serverPort) || serverPort is < 1 or > 65535)
+            {
+                Status = "The server port must be a number between 1 and 65535.";
+                return;
+            }
+
+            var existing = _settingsService.Load();
             _settingsService.Save(new AppSettings
             {
+                ServerEnabled = ServerEnabled,
+                ServerPort = serverPort,
+                ServerApiKey = string.IsNullOrWhiteSpace(ServerApiKeyText) ? null : ServerApiKeyText.Trim(),
+                RemoteCabinets = existing.RemoteCabinets,
                 TableFolders = ParseLines(TableFoldersText),
                 RomFolders = ParseLines(RomFoldersText),
                 MediaFolders = ParseLines(MediaFoldersText),
@@ -84,7 +123,21 @@ public partial class SettingsViewModel : PageViewModel
                 DownloadsFolder = string.IsNullOrWhiteSpace(DownloadsFolderText) ? null : DownloadsFolderText.Trim(),
                 CloudSyncFolder = string.IsNullOrWhiteSpace(CloudFolderText) ? null : CloudFolderText.Trim(),
             });
-            Status = "Settings saved.";
+
+            // Apply the server state immediately.
+            if (ServerEnabled)
+            {
+                var error = await _apiServer.StartAsync(serverPort, ServerApiKeyText.Trim());
+                Status = error is null
+                    ? "Settings saved. Remote-control server is running."
+                    : $"Settings saved, but the server failed to start: {error}";
+            }
+            else
+            {
+                await _apiServer.StopAsync();
+                Status = "Settings saved.";
+            }
+            RefreshServerStatus();
         }
         catch (Exception ex)
         {

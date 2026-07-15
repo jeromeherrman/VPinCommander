@@ -11,6 +11,8 @@ public partial class MainViewModel : ObservableObject
 
     public InstallerViewModel Installer { get; }
 
+    public CabinetsViewModel Cabinets { get; }
+
     [ObservableProperty]
     private PageViewModel? _currentPage;
 
@@ -22,6 +24,7 @@ public partial class MainViewModel : ObservableObject
         HealthViewModel health,
         UpdatesViewModel updates,
         InstallerViewModel installer,
+        CabinetsViewModel cabinets,
         PopperViewModel popper,
         PinballXViewModel pinballX,
         PinballYViewModel pinballY,
@@ -30,6 +33,7 @@ public partial class MainViewModel : ObservableObject
         Pages = new PageViewModel[] { dashboard, tables, media, roms, health, popper, pinballX, pinballY, settings };
         Updates = updates;
         Installer = installer;
+        Cabinets = cabinets;
         CurrentPage = dashboard;
     }
 

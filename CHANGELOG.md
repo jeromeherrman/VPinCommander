@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Client/server remote management: enable the remote-control server on a cabinet (Settings → cabinet mode: port + generated API key), then manage any number of cabinets from the new "Remote Cabinets" tab on a desktop — live status and inventory counts, health findings, and remotely triggered scans and front-end imports. Plain HTTP on the LAN protected by the API key.
+- Release builds are now self-contained: no .NET runtime installation needed on cabinets.
+
 ## 0.3.0 — 2026-07-14
 
 ### Added

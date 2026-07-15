@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\VPinCommander.Data\VPinCommander.Data.csproj" />
+    <ProjectReference Include="..\..\src\VPinCommander.Server\VPinCommander.Server.csproj" />
   </ItemGroup>
 
 </Project>

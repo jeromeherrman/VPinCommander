@@ -77,5 +77,9 @@
         </TabItem>
       </TabControl>
     </TabItem>
+
+    <TabItem Header="Remote Cabinets" Style="{StaticResource MainTab}">
+      <ContentControl Content="{Binding Cabinets}" Margin="24" />
+    </TabItem>
   </TabControl>
 </Window>

@@ -26,4 +26,15 @@ public class AppSettings
 
     /// <summary>Folder the Installer watches for new downloads; the user's Downloads folder when null.</summary>
     public string? DownloadsFolder { get; set; }
+
+    /// <summary>Run the remote-control API server on this machine (cabinet mode).</summary>
+    public bool ServerEnabled { get; set; }
+
+    public int ServerPort { get; set; } = 5588;
+
+    /// <summary>Shared secret clients must send; generated when the server is first enabled.</summary>
+    public string? ServerApiKey { get; set; }
+
+    /// <summary>Cabinets this machine manages remotely (client mode).</summary>
+    public List<Remote.RemoteCabinet> RemoteCabinets { get; set; } = new();
 }

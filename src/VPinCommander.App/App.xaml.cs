@@ -15,9 +15,11 @@ using VPinCommander.Core.Updates;
 using VPinCommander.Data;
 using VPinCommander.Data.Export;
 using VPinCommander.Data.Integrations;
+using VPinCommander.Core.Remote;
 using VPinCommander.Data.Services;
 using VPinCommander.Data.Updates;
 using VPinCommander.Data.Vpx;
+using VPinCommander.Server;
 
 namespace VPinCommander.App;
 
@@ -69,6 +71,8 @@ public partial class App : Application
                     Timeout = TimeSpan.FromSeconds(60),
                 });
                 services.AddSingleton<IUpdateChecker, VpsUpdateChecker>();
+                services.AddSingleton<CabinetApiServer>();
+                services.AddSingleton<CabinetClient>();
                 services.AddSingleton<PopperIntegration>();
                 services.AddSingleton<PinballXIntegration>();
                 services.AddSingleton<PinballYIntegration>();
@@ -83,6 +87,7 @@ public partial class App : Application
                 services.AddSingleton<RomsViewModel>();
                 services.AddSingleton<UpdatesViewModel>();
                 services.AddSingleton<InstallerViewModel>();
+                services.AddSingleton<CabinetsViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();
@@ -100,6 +105,19 @@ public partial class App : Application
 
         var window = _host.Services.GetRequiredService<MainWindow>();
         window.Show();
+
+        // Cabinet mode: bring the remote-control server up if the user enabled it.
+        var settings = _host.Services.GetRequiredService<ISettingsService>().Load();
+        if (settings.ServerEnabled && !string.IsNullOrWhiteSpace(settings.ServerApiKey))
+        {
+            var server = _host.Services.GetRequiredService<CabinetApiServer>();
+            _ = server.StartAsync(settings.ServerPort, settings.ServerApiKey!)
+                .ContinueWith(t =>
+                {
+                    if (t.Result is { } error)
+                        LogCrash(new InvalidOperationException($"Remote-control server failed to start: {error}"));
+                }, TaskScheduler.Default);
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)

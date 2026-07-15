@@ -22,9 +22,11 @@ jobs:
         run: dotnet test --configuration Release
 
       - name: Publish
+        # Self-contained since the embedded remote-control server needs the
+        # ASP.NET Core runtime — bundling it means cabinets install nothing extra.
         run: >
           dotnet publish src/VPinCommander.App -c Release -r win-x64
-          --self-contained false
+          --self-contained true
           -p:PublishSingleFile=true
           -o publish
 
