@@ -62,8 +62,13 @@
       <TextBlock Text="Downloads folder to monitor" FontWeight="SemiBold" />
       <TextBlock Text="The Installer watches this folder for new tables and media and adds them automatically. Leave empty to use your Windows Downloads folder."
                  Foreground="#666" FontSize="12" Margin="0,2,0,0" />
-      <TextBox FontFamily="Consolas" Padding="6" Margin="0,4,0,16"
-               Text="{Binding DownloadsFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      <DockPanel Margin="0,4,0,16">
+        <Button DockPanel.Dock="Right" Content="Browse…"
+                Command="{Binding BrowseDownloadsFolderCommand}"
+                Padding="12,6" Margin="8,0,0,0" />
+        <TextBox FontFamily="Consolas" Padding="6"
+                 Text="{Binding DownloadsFolderText, UpdateSourceTrigger=PropertyChanged}" />
+      </DockPanel>
 
       <TextBlock Text="Backup &amp; restore" FontWeight="SemiBold" FontSize="16" Margin="0,32,0,4" />
       <TextBlock Text="Backs up the inventory database and these settings into a single zip. Restoring replaces both and restarts the app; a .pre-restore copy of the database is kept."

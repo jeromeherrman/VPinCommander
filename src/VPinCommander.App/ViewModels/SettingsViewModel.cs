@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -81,6 +82,20 @@ public partial class SettingsViewModel : PageViewModel
             + (_apiServer.CertificateFingerprint is { } fingerprint
                 ? $" Certificate fingerprint (clients pin this automatically on first connect): {fingerprint[..16]}…"
                 : string.Empty);
+    }
+
+    [RelayCommand]
+    private void BrowseDownloadsFolder()
+    {
+        var dialog = new OpenFolderDialog { Title = "Choose the downloads folder to monitor" };
+        if (!string.IsNullOrWhiteSpace(DownloadsFolderText) && Directory.Exists(DownloadsFolderText))
+            dialog.InitialDirectory = DownloadsFolderText;
+
+        if (dialog.ShowDialog() == true)
+        {
+            DownloadsFolderText = dialog.FolderName;
+            Status = "Downloads folder selected — click Save settings to apply it.";
+        }
     }
 
     [RelayCommand]

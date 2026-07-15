@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Browse… button for the "Downloads folder to monitor" setting (native folder picker).
+
 ## 0.5.0 — 2026-07-15
 
 ### Added
