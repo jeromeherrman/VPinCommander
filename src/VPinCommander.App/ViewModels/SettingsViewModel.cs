@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using VPinCommander.Core.Services;
 using VPinCommander.Core.Settings;
+using VPinCommander.Core.Updates;
 using VPinCommander.Server;
 
 namespace VPinCommander.App.ViewModels;
@@ -16,6 +17,8 @@ public partial class SettingsViewModel : PageViewModel
     private readonly IBackupService _backupService;
     private readonly ICloudSyncService _cloudSyncService;
     private readonly CabinetApiServer _apiServer;
+    private readonly IAppUpdateService _appUpdateService;
+    private AppUpdateInfo? _pendingUpdate;
 
     public override string Title => "Settings";
 
@@ -34,18 +37,31 @@ public partial class SettingsViewModel : PageViewModel
     [ObservableProperty] private string _serverPortText = "5588";
     [ObservableProperty] private string _serverApiKeyText = string.Empty;
     [ObservableProperty] private string _serverStatusText = string.Empty;
+    [ObservableProperty] private string _appUpdateStatusText = string.Empty;
     [ObservableProperty] private string _status = string.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(InstallAppUpdateCommand))]
+    private bool _appUpdateAvailable;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CheckAppUpdateCommand))]
+    [NotifyCanExecuteChangedFor(nameof(InstallAppUpdateCommand))]
+    private bool _appUpdateBusy;
 
     public SettingsViewModel(
         ISettingsService settingsService,
         IBackupService backupService,
         ICloudSyncService cloudSyncService,
-        CabinetApiServer apiServer)
+        CabinetApiServer apiServer,
+        IAppUpdateService appUpdateService)
     {
         _settingsService = settingsService;
         _backupService = backupService;
         _cloudSyncService = cloudSyncService;
         _apiServer = apiServer;
+        _appUpdateService = appUpdateService;
+        AppUpdateStatusText = $"Current version: {appUpdateService.CurrentVersion.ToString(3)}";
         var settings = _settingsService.Load();
         TableFoldersText = string.Join(Environment.NewLine, settings.TableFolders);
         RomFoldersText = string.Join(Environment.NewLine, settings.RomFolders);
@@ -141,6 +157,80 @@ public partial class SettingsViewModel : PageViewModel
         if (lines.Contains(folder, StringComparer.OrdinalIgnoreCase))
             return existing; // already listed
         return lines.Length == 0 ? folder : string.Join(Environment.NewLine, lines.Append(folder));
+    }
+
+    [RelayCommand(CanExecute = nameof(AppUpdateIdle))]
+    private async Task CheckAppUpdateAsync()
+    {
+        AppUpdateBusy = true;
+        try
+        {
+            AppUpdateStatusText = "Checking for updates…";
+            var result = await _appUpdateService.CheckAsync();
+            _pendingUpdate = result.UpdateAvailable ? result.Update : null;
+            AppUpdateAvailable = result.UpdateAvailable;
+            AppUpdateStatusText = result switch
+            {
+                { Error: { } error } => $"Current version: {_appUpdateService.CurrentVersion.ToString(3)} — {error}",
+                { UpdateAvailable: true, Update: { } update } =>
+                    $"Update available: {update.TagName} (installed: {_appUpdateService.CurrentVersion.ToString(3)}).",
+                _ => $"You are up to date ({_appUpdateService.CurrentVersion.ToString(3)}).",
+            };
+        }
+        finally
+        {
+            AppUpdateBusy = false;
+        }
+    }
+
+    private bool AppUpdateIdle() => !AppUpdateBusy;
+
+    private bool CanInstallAppUpdate() => AppUpdateAvailable && !AppUpdateBusy;
+
+    [RelayCommand(CanExecute = nameof(CanInstallAppUpdate))]
+    private async Task InstallAppUpdateAsync()
+    {
+        if (_pendingUpdate is null)
+            return;
+        var update = _pendingUpdate;
+
+        var confirmed = MessageBox.Show(
+            $"Download and install VPin Commander {update.TagName}?\n\n"
+            + "The app will close, the update will be applied, and it will restart automatically.",
+            "Install update",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+        if (confirmed != MessageBoxResult.Yes)
+            return;
+
+        AppUpdateBusy = true;
+        try
+        {
+            var progress = new Progress<string>(message => AppUpdateStatusText = message);
+            var script = await _appUpdateService.DownloadAndPrepareAsync(update, progress);
+            if (script is null)
+            {
+                AppUpdateStatusText = update.ReleasePageUrl is { } page
+                    ? $"Could not prepare the update automatically — download it manually: {page}"
+                    : "Could not prepare the update automatically.";
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{script}\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            });
+            Application.Current.Shutdown();
+        }
+        catch (Exception ex)
+        {
+            AppUpdateStatusText = $"Update failed: {ex.Message}";
+        }
+        finally
+        {
+            AppUpdateBusy = false;
+        }
     }
 
     [RelayCommand]

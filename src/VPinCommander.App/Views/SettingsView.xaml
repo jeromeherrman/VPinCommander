@@ -129,6 +129,14 @@
         <TextBlock Text="{Binding CloudStatusText}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="#666" />
       </StackPanel>
 
+      <TextBlock Text="Application updates" FontWeight="SemiBold" FontSize="16" Margin="0,32,0,4" />
+      <TextBlock Text="{Binding AppUpdateStatusText}" Foreground="#666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8" />
+      <StackPanel Orientation="Horizontal">
+        <Button Content="Check for updates" Command="{Binding CheckAppUpdateCommand}" Padding="14,8" />
+        <Button Content="Download &amp; install" Command="{Binding InstallAppUpdateCommand}"
+                Padding="14,8" Margin="12,0,0,0" FontWeight="SemiBold" />
+      </StackPanel>
+
       <TextBlock Text="Remote-control server (cabinet mode)" FontWeight="SemiBold" FontSize="16" Margin="0,32,0,4" />
       <TextBlock Text="Run this on the cabinet so other VPin Commander instances can manage it from the Remote Cabinets tab. Plain HTTP on your LAN, protected by the API key — if clients cannot connect, allow VPin Commander through Windows Firewall."
                  Foreground="#666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8" />

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Application self-update: Settings → Application updates checks GitHub Releases, and "Download & install" fetches the new version, applies it after the app closes, and restarts automatically. A newer release found at startup is noted in the window title. (Requires the repository to be public for anonymous update checks.)
+
 ## 0.5.1 — 2026-07-15
 
 ### Added

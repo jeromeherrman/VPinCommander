@@ -71,6 +71,7 @@ public partial class App : Application
                     Timeout = TimeSpan.FromSeconds(60),
                 });
                 services.AddSingleton<IUpdateChecker, VpsUpdateChecker>();
+                services.AddSingleton<IAppUpdateService, AppUpdateService>();
                 services.AddSingleton<CabinetApiServer>();
                 services.AddSingleton<CabinetClient>();
                 services.AddSingleton<PopperIntegration>();
