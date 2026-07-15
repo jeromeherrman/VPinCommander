@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.1 — 2026-07-15
 
 ### Added
 - Folder pickers for every path field on the Settings page: single-folder fields (PinUP Popper, PinballX, PinballY, DOF, downloads, cloud sync) get a Browse… button; the multi-folder lists (tables, ROMs, media) get an Add folder… button that appends without duplicates.
