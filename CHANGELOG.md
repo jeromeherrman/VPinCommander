@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — 2026-07-14
 
 ### Added
 - Media preview before installing or downloading: the Installer shows a preview pane for the selected file — images display directly, videos/audio get a player, and archives can be browsed so the wheel images, backglass videos, and sounds inside are previewable before anything is installed. The Updates tab shows a large VPS preview with version details for the selected table.
