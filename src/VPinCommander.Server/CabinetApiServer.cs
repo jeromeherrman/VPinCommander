@@ -1,12 +1,15 @@
+using System.Net;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using VPinCommander.Core;
 using VPinCommander.Core.Health;
 using VPinCommander.Core.Persistence;
 using VPinCommander.Core.Remote;
 using VPinCommander.Core.Scanning;
+using VPinCommander.Core.Services.Installer;
 using VPinCommander.Core.Settings;
 using VPinCommander.Data.Integrations;
 
@@ -25,6 +28,7 @@ public sealed class CabinetApiServer : IAsyncDisposable
     private readonly PopperIntegration _popper;
     private readonly PinballXIntegration _pinballX;
     private readonly PinballYIntegration _pinballY;
+    private readonly IContentInstaller _contentInstaller;
 
     private WebApplication? _app;
 
@@ -34,7 +38,8 @@ public sealed class CabinetApiServer : IAsyncDisposable
         ISettingsService settingsService,
         PopperIntegration popper,
         PinballXIntegration pinballX,
-        PinballYIntegration pinballY)
+        PinballYIntegration pinballY,
+        IContentInstaller contentInstaller)
     {
         _store = store;
         _scanner = scanner;
@@ -42,14 +47,18 @@ public sealed class CabinetApiServer : IAsyncDisposable
         _popper = popper;
         _pinballX = pinballX;
         _pinballY = pinballY;
+        _contentInstaller = contentInstaller;
     }
 
     public bool IsRunning => _app is not null;
 
     public string? BoundUrl { get; private set; }
 
+    /// <summary>SHA-256 fingerprint of the HTTPS certificate; null while stopped or over plain HTTP.</summary>
+    public string? CertificateFingerprint { get; private set; }
+
     /// <summary>Starts the server; returns an error message on failure, null on success.</summary>
-    public async Task<string?> StartAsync(int port, string apiKey, string host = "0.0.0.0")
+    public async Task<string?> StartAsync(int port, string apiKey, string host = "0.0.0.0", bool useHttps = false)
     {
         if (string.IsNullOrWhiteSpace(apiKey))
             return "An API key is required to run the server.";
@@ -59,7 +68,22 @@ public sealed class CabinetApiServer : IAsyncDisposable
         {
             var builder = WebApplication.CreateSlimBuilder();
             builder.Logging.ClearProviders();
-            builder.WebHost.UseUrls($"http://{host}:{port}");
+
+            var certificate = useHttps
+                ? ServerCertificate.GetOrCreate(Path.Combine(AppPaths.DataFolder, "server-cert.pfx"))
+                : null;
+            CertificateFingerprint = certificate is not null ? ServerCertificate.FingerprintOf(certificate) : null;
+
+            var address = IPAddress.TryParse(host, out var parsed) ? parsed : IPAddress.Any;
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = null; // table pushes are hundreds of MB
+                options.Listen(address, port, listen =>
+                {
+                    if (certificate is not null)
+                        listen.UseHttps(certificate);
+                });
+            });
 
             var app = builder.Build();
 
@@ -98,6 +122,7 @@ public sealed class CabinetApiServer : IAsyncDisposable
         await _app.DisposeAsync();
         _app = null;
         BoundUrl = null;
+        CertificateFingerprint = null;
     }
 
     public ValueTask DisposeAsync() => new(StopAsync());
@@ -145,6 +170,38 @@ public sealed class CabinetApiServer : IAsyncDisposable
             var result = await integration.ImportAsync(_settingsService.Load(), ct);
             await _store.ReplaceFrontEndGamesAsync(integration.Source, result.Games, ct);
             return Results.Ok(new ImportSummary(integration.DisplayName, result.Games.Count, result.Errors.Count));
+        });
+
+        // Remote content push: the client streams a downloaded file; the cabinet
+        // classifies and installs it exactly like the local Installer page would.
+        app.MapPost("/api/install", async (HttpRequest request, string fileName, CancellationToken ct) =>
+        {
+            var safeName = Path.GetFileName(fileName);
+            if (string.IsNullOrWhiteSpace(safeName))
+                return Results.BadRequest("A fileName query parameter is required.");
+
+            // Stage under the original name in a unique folder so classification
+            // and target naming see exactly what the user downloaded.
+            var stagingDir = Path.Combine(AppPaths.DataFolder, "RemoteInbox", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(stagingDir);
+            var stagedPath = Path.Combine(stagingDir, safeName);
+            try
+            {
+                await using (var file = File.Create(stagedPath))
+                {
+                    await request.Body.CopyToAsync(file, ct);
+                }
+
+                var items = await _contentInstaller.AnalyzeAsync(new[] { stagedPath }, ct);
+                await _contentInstaller.InstallAsync(items, ct);
+                var item = items[0];
+                return Results.Ok(new RemoteInstallResult(
+                    safeName, item.Kind.ToString(), item.TargetPath, item.Error, item.Status));
+            }
+            finally
+            {
+                try { Directory.Delete(stagingDir, recursive: true); } catch { /* best effort */ }
+            }
         });
     }
 }

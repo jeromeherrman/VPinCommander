@@ -52,7 +52,21 @@
                     SelectedItem="{Binding SelectedImportSource, Mode=TwoWay}"
                     MinWidth="110" VerticalAlignment="Center" />
           <Button Content="Import" Command="{Binding ImportCommand}" Padding="12,8" Margin="8,0,0,0" />
+          <Button Content="Push content…" Command="{Binding PushContentCommand}"
+                  Padding="16,8" Margin="24,0,0,0" FontWeight="SemiBold" />
         </StackPanel>
+        <ListBox ItemsSource="{Binding PushLog}" MaxHeight="90" FontSize="11" Margin="0,0,0,10"
+                 BorderBrush="#DDD">
+          <ListBox.Style>
+            <Style TargetType="ListBox">
+              <Style.Triggers>
+                <Trigger Property="HasItems" Value="False">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+              </Style.Triggers>
+            </Style>
+          </ListBox.Style>
+        </ListBox>
         <TextBlock Text="Health findings on the selected cabinet" FontWeight="SemiBold" Margin="0,4,0,6" />
       </StackPanel>
 

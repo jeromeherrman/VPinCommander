@@ -67,7 +67,8 @@ public sealed class ServerClientTests : IAsyncLifetime, IDisposable
             _settings,
             new PopperIntegration(),
             new PinballXIntegration(),
-            new PinballYIntegration());
+            new PinballYIntegration(),
+            new Core.Services.Installer.ContentInstaller(_settings));
     }
 
     public async Task InitializeAsync()
@@ -141,6 +142,23 @@ public sealed class ServerClientTests : IAsyncLifetime, IDisposable
         Assert.NotNull(summary);
         Assert.Equal(0, summary!.Games);
         Assert.True(summary.Errors > 0); // "database not found" style warning
+    }
+
+    [Fact]
+    public async Task Push_install_places_a_table_on_the_cabinet()
+    {
+        var localFile = Path.Combine(_folder, "Pushed Table.vpx");
+        File.WriteAllText(localFile, "fake table content");
+
+        var result = await new CabinetClient().PushInstallAsync(_cabinet, localFile);
+
+        Assert.NotNull(result);
+        Assert.Equal("Table", result!.Kind);
+        Assert.Null(result.Error);
+        Assert.StartsWith("Installed", result.Status);
+        var installed = Path.Combine(_tablesFolder, "Pushed Table.vpx");
+        Assert.True(File.Exists(installed));
+        Assert.Equal("fake table content", File.ReadAllText(installed));
     }
 
     [Fact]

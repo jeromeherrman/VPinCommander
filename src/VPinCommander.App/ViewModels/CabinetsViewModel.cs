@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using VPinCommander.Core.Health;
 using VPinCommander.Core.Remote;
 using VPinCommander.Core.Settings;
@@ -16,6 +18,7 @@ public partial class CabinetsViewModel : PageViewModel
 
     public ObservableCollection<RemoteCabinet> Cabinets { get; } = new();
     public ObservableCollection<HealthFinding> RemoteFindings { get; } = new();
+    public ObservableCollection<string> PushLog { get; } = new();
 
     public IReadOnlyList<string> ImportSources { get; } = new[] { "popper", "pinballx", "pinbally" };
 
@@ -30,6 +33,7 @@ public partial class CabinetsViewModel : PageViewModel
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunScanCommand))]
     [NotifyCanExecuteChangedFor(nameof(ImportCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PushContentCommand))]
     [NotifyCanExecuteChangedFor(nameof(RemoveCommand))]
     private RemoteCabinet? _selectedCabinet;
 
@@ -37,6 +41,7 @@ public partial class CabinetsViewModel : PageViewModel
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
     [NotifyCanExecuteChangedFor(nameof(RunScanCommand))]
     [NotifyCanExecuteChangedFor(nameof(ImportCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PushContentCommand))]
     private bool _isBusy;
 
     public CabinetsViewModel(CabinetClient client, ISettingsService settingsService)
@@ -118,6 +123,7 @@ public partial class CabinetsViewModel : PageViewModel
                   + $"{status.Stats.Tables} tables, {status.Stats.Roms} ROMs, {status.Stats.MediaAssets} media files, "
                   + $"{status.Stats.FrontEndGames} front-end games. Health: {errors} errors, {warnings} warnings.";
             Status = $"Connected to {cabinet.Name}.";
+            PersistCabinets(); // keeps a fingerprint pinned on first HTTPS connect
         }
         catch (Exception ex)
         {
@@ -182,6 +188,51 @@ public partial class CabinetsViewModel : PageViewModel
             IsBusy = false;
         }
         await RefreshAsync();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanOperate))]
+    private async Task PushContentAsync()
+    {
+        if (SelectedCabinet is null)
+            return;
+        var cabinet = SelectedCabinet;
+
+        var dialog = new OpenFileDialog
+        {
+            Title = $"Push content to {cabinet.Name}",
+            Multiselect = true,
+            Filter = "Pinball content|*.zip;*.vpx;*.vpt;*.fp;*.directb2s;*.pac;*.vni;*.pal;*.crz|All files|*.*",
+        };
+        if (dialog.ShowDialog() != true)
+            return;
+
+        IsBusy = true;
+        try
+        {
+            int done = 0;
+            foreach (var file in dialog.FileNames)
+            {
+                done++;
+                var name = Path.GetFileName(file);
+                Status = $"Pushing {name} to {cabinet.Name} ({done}/{dialog.FileNames.Length})…";
+                try
+                {
+                    var result = await _client.PushInstallAsync(cabinet, file);
+                    PushLog.Insert(0, result is null
+                        ? $"{name}: no response"
+                        : $"{name} → {result.Kind}: {result.Error ?? result.Status ?? "done"}");
+                }
+                catch (Exception ex)
+                {
+                    PushLog.Insert(0, $"{name}: push failed — {ex.Message}");
+                }
+            }
+            Status = $"Push finished ({dialog.FileNames.Length} file(s)). Run a scan on {cabinet.Name} to pick everything up.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void PersistCabinets()

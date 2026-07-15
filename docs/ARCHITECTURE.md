@@ -49,7 +49,7 @@ Content operations are conservative by design: `MediaManager.AssignToTableAsync`
 
 ## Remote management (client/server)
 
-`VPinCommander.Server` hosts an ASP.NET Core minimal API inside the app when "cabinet mode" is enabled: `GET /api/status|tables|roms|media|health`, `POST /api/scan`, `POST /api/import/{popper|pinballx|pinbally}` — all requiring the `X-Api-Key` header (shared key generated in Settings), bound to the LAN over plain HTTP. The client side is `CabinetClient` (Core, typed HTTP) driving the "Remote Cabinets" tab, where any number of cabinets are registered (name/address/key, persisted in settings) and monitored/scanned/imported centrally. Dependency rule extension: `App → Server → Data → Core`.
+`VPinCommander.Server` hosts an ASP.NET Core minimal API inside the app when "cabinet mode" is enabled: `GET /api/status|tables|roms|media|health`, `POST /api/scan`, `POST /api/import/{popper|pinballx|pinbally}`, and `POST /api/install?fileName=…` (content push: the uploaded file is staged under its original name and run through `ContentInstaller`). All requests require the `X-Api-Key` header (shared key generated in Settings). Transport is HTTP on the LAN or optional HTTPS: `ServerCertificate` generates a persistent self-signed certificate, and `CabinetClient` pairs by pinning its SHA-256 fingerprint on first use (stored per cabinet; any later mismatch is rejected). The client side drives the "Remote Cabinets" tab, where any number of cabinets are registered (name/address/key, persisted in settings) and monitored/scanned/imported/pushed-to centrally. Dependency rule extension: `App → Server → Data → Core`.
 
 ## Content installer
 

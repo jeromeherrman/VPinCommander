@@ -88,7 +88,9 @@
       <TextBlock Text="Run this on the cabinet so other VPin Commander instances can manage it from the Remote Cabinets tab. Plain HTTP on your LAN, protected by the API key — if clients cannot connect, allow VPin Commander through Windows Firewall."
                  Foreground="#666" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8" />
       <CheckBox Content="Enable the server on this machine"
-                IsChecked="{Binding ServerEnabled, Mode=TwoWay}" Margin="0,0,0,8" />
+                IsChecked="{Binding ServerEnabled, Mode=TwoWay}" Margin="0,0,0,6" />
+      <CheckBox Content="Use HTTPS (self-signed — recommended when cabinets are reachable beyond your home LAN)"
+                IsChecked="{Binding ServerUseHttps, Mode=TwoWay}" Margin="0,0,0,8" />
       <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
         <TextBlock Text="Port:" VerticalAlignment="Center" Foreground="#666" />
         <TextBox Text="{Binding ServerPortText, UpdateSourceTrigger=PropertyChanged}"

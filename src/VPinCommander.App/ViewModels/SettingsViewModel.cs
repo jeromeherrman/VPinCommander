@@ -29,6 +29,7 @@ public partial class SettingsViewModel : PageViewModel
     [ObservableProperty] private string _cloudFolderText = string.Empty;
     [ObservableProperty] private string _cloudStatusText = string.Empty;
     [ObservableProperty] private bool _serverEnabled;
+    [ObservableProperty] private bool _serverUseHttps;
     [ObservableProperty] private string _serverPortText = "5588";
     [ObservableProperty] private string _serverApiKeyText = string.Empty;
     [ObservableProperty] private string _serverStatusText = string.Empty;
@@ -55,6 +56,7 @@ public partial class SettingsViewModel : PageViewModel
         DownloadsFolderText = settings.DownloadsFolder ?? string.Empty;
         CloudFolderText = settings.CloudSyncFolder ?? string.Empty;
         ServerEnabled = settings.ServerEnabled;
+        ServerUseHttps = settings.ServerUseHttps;
         ServerPortText = settings.ServerPort.ToString();
         ServerApiKeyText = settings.ServerApiKey ?? string.Empty;
     }
@@ -68,9 +70,17 @@ public partial class SettingsViewModel : PageViewModel
 
     private void RefreshServerStatus()
     {
-        ServerStatusText = _apiServer.IsRunning
-            ? $"Running at {_apiServer.BoundUrl} — clients connect with http://<this-pc>:{ServerPortText} and the API key."
-            : "Stopped.";
+        if (!_apiServer.IsRunning)
+        {
+            ServerStatusText = "Stopped.";
+            return;
+        }
+
+        var scheme = _apiServer.CertificateFingerprint is null ? "http" : "https";
+        ServerStatusText = $"Running at {_apiServer.BoundUrl} — clients connect with {scheme}://<this-pc>:{ServerPortText} and the API key."
+            + (_apiServer.CertificateFingerprint is { } fingerprint
+                ? $" Certificate fingerprint (clients pin this automatically on first connect): {fingerprint[..16]}…"
+                : string.Empty);
     }
 
     [RelayCommand]
@@ -110,6 +120,7 @@ public partial class SettingsViewModel : PageViewModel
             _settingsService.Save(new AppSettings
             {
                 ServerEnabled = ServerEnabled,
+                ServerUseHttps = ServerUseHttps,
                 ServerPort = serverPort,
                 ServerApiKey = string.IsNullOrWhiteSpace(ServerApiKeyText) ? null : ServerApiKeyText.Trim(),
                 RemoteCabinets = existing.RemoteCabinets,
@@ -127,7 +138,7 @@ public partial class SettingsViewModel : PageViewModel
             // Apply the server state immediately.
             if (ServerEnabled)
             {
-                var error = await _apiServer.StartAsync(serverPort, ServerApiKeyText.Trim());
+                var error = await _apiServer.StartAsync(serverPort, ServerApiKeyText.Trim(), useHttps: ServerUseHttps);
                 Status = error is null
                     ? "Settings saved. Remote-control server is running."
                     : $"Settings saved, but the server failed to start: {error}";

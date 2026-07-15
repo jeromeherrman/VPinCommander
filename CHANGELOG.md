@@ -3,7 +3,9 @@
 ## Unreleased
 
 ### Added
-- Client/server remote management: enable the remote-control server on a cabinet (Settings → cabinet mode: port + generated API key), then manage any number of cabinets from the new "Remote Cabinets" tab on a desktop — live status and inventory counts, health findings, and remotely triggered scans and front-end imports. Plain HTTP on the LAN protected by the API key.
+- Client/server remote management: enable the remote-control server on a cabinet (Settings → cabinet mode: port + generated API key), then manage any number of cabinets from the new "Remote Cabinets" tab on a desktop — live status and inventory counts, health findings, and remotely triggered scans and front-end imports.
+- Remote content push: select downloaded files on the desktop and push them to a cabinet, where they are classified and installed exactly like the local Installer would (tables, ROMs, PuP-Packs, media…).
+- Optional HTTPS with pairing for cabinets reachable beyond the home LAN: the server generates a persistent self-signed certificate; clients pin its fingerprint on the first connection and reject any later change (plus the API key on every request).
 - Release builds are now self-contained: no .NET runtime installation needed on cabinets.
 
 ## 0.3.0 — 2026-07-14

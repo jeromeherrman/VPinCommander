@@ -35,6 +35,9 @@ public class AppSettings
     /// <summary>Shared secret clients must send; generated when the server is first enabled.</summary>
     public string? ServerApiKey { get; set; }
 
+    /// <summary>Serve HTTPS with a self-signed certificate (clients pair by pinning its fingerprint).</summary>
+    public bool ServerUseHttps { get; set; }
+
     /// <summary>Cabinets this machine manages remotely (client mode).</summary>
     public List<Remote.RemoteCabinet> RemoteCabinets { get; set; } = new();
 }

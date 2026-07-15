@@ -111,7 +111,7 @@ public partial class App : Application
         if (settings.ServerEnabled && !string.IsNullOrWhiteSpace(settings.ServerApiKey))
         {
             var server = _host.Services.GetRequiredService<CabinetApiServer>();
-            _ = server.StartAsync(settings.ServerPort, settings.ServerApiKey!)
+            _ = server.StartAsync(settings.ServerPort, settings.ServerApiKey!, useHttps: settings.ServerUseHttps)
                 .ContinueWith(t =>
                 {
                     if (t.Result is { } error)
