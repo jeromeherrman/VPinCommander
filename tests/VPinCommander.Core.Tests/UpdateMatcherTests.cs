@@ -23,12 +23,13 @@ public class UpdateMatcherTests
         TableFiles = files.ToList(),
     };
 
-    private static VpsTableFile VpxFile(string version, long updatedAt = 1_700_000_000_000, string? url = "https://example/download") => new()
+    private static VpsTableFile VpxFile(string version, long updatedAt = 1_700_000_000_000, string? url = "https://example/download", string? imgUrl = null) => new()
     {
         Version = version,
         TableFormat = "VPX",
         UpdatedAt = updatedAt,
         Urls = url is null ? null : new List<VpsUrl> { new() { Url = url } },
+        ImgUrl = imgUrl,
     };
 
     [Fact]
@@ -43,6 +44,27 @@ public class UpdateMatcherTests
         Assert.Equal("2.1", update.RemoteVersion);
         Assert.Equal("https://example/download", update.Url);
         Assert.Equal(1, result.MatchedTables);
+    }
+
+    [Fact]
+    public void Preview_image_comes_from_the_table_file_falling_back_to_the_game()
+    {
+        var fileLevel = Game("Attack From Mars", "Bally", 1995, VpxFile("2.1", imgUrl: "https://img/file.webp"));
+        var gameLevel = Game("Medieval Madness", "Williams", 1997, VpxFile("2.1"));
+        gameLevel.ImgUrl = "https://img/game.webp";
+
+        var result = UpdateMatcher.FindUpdates(
+            new[]
+            {
+                Vpx("Attack From Mars (Bally 1995)", "2.0"),
+                Vpx("Medieval Madness (Williams 1997)", "2.0"),
+            },
+            new[] { fileLevel, gameLevel });
+
+        Assert.Equal("https://img/file.webp",
+            result.Updates.Single(u => u.TableName.StartsWith("Attack")).ImageUrl);
+        Assert.Equal("https://img/game.webp",
+            result.Updates.Single(u => u.TableName.StartsWith("Medieval")).ImageUrl);
     }
 
     [Fact]

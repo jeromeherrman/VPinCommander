@@ -23,6 +23,7 @@ public partial class SettingsViewModel : PageViewModel
     [ObservableProperty] private string _pinballXFolderText = string.Empty;
     [ObservableProperty] private string _pinballYFolderText = string.Empty;
     [ObservableProperty] private string _dofFolderText = string.Empty;
+    [ObservableProperty] private string _downloadsFolderText = string.Empty;
     [ObservableProperty] private string _cloudFolderText = string.Empty;
     [ObservableProperty] private string _cloudStatusText = string.Empty;
     [ObservableProperty] private string _status = string.Empty;
@@ -43,6 +44,7 @@ public partial class SettingsViewModel : PageViewModel
         PinballXFolderText = settings.PinballXFolder ?? string.Empty;
         PinballYFolderText = settings.PinballYFolder ?? string.Empty;
         DofFolderText = settings.DofConfigFolder ?? string.Empty;
+        DownloadsFolderText = settings.DownloadsFolder ?? string.Empty;
         CloudFolderText = settings.CloudSyncFolder ?? string.Empty;
     }
 
@@ -79,6 +81,7 @@ public partial class SettingsViewModel : PageViewModel
                 PinballXFolder = string.IsNullOrWhiteSpace(PinballXFolderText) ? null : PinballXFolderText.Trim(),
                 PinballYFolder = string.IsNullOrWhiteSpace(PinballYFolderText) ? null : PinballYFolderText.Trim(),
                 DofConfigFolder = string.IsNullOrWhiteSpace(DofFolderText) ? null : DofFolderText.Trim(),
+                DownloadsFolder = string.IsNullOrWhiteSpace(DownloadsFolderText) ? null : DownloadsFolderText.Trim(),
                 CloudSyncFolder = string.IsNullOrWhiteSpace(CloudFolderText) ? null : CloudFolderText.Trim(),
             });
             Status = "Settings saved.";

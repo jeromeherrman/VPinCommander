@@ -10,6 +10,7 @@ public sealed class VpsGame
     [JsonPropertyName("name")] public string? Name { get; set; }
     [JsonPropertyName("manufacturer")] public string? Manufacturer { get; set; }
     [JsonPropertyName("year")] public int? Year { get; set; }
+    [JsonPropertyName("imgUrl")] public string? ImgUrl { get; set; }
     [JsonPropertyName("tableFiles")] public List<VpsTableFile>? TableFiles { get; set; }
 }
 
@@ -22,6 +23,7 @@ public sealed class VpsTableFile
     [JsonPropertyName("updatedAt")] public long? UpdatedAt { get; set; }
     [JsonPropertyName("urls")] public List<VpsUrl>? Urls { get; set; }
     [JsonPropertyName("authors")] public List<string>? Authors { get; set; }
+    [JsonPropertyName("imgUrl")] public string? ImgUrl { get; set; }
 }
 
 public sealed class VpsUrl

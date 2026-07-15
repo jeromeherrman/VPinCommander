@@ -23,4 +23,7 @@ public class AppSettings
 
     /// <summary>A cloud-synced folder (OneDrive/Dropbox/…) used for optional push/pull synchronization; disabled when null.</summary>
     public string? CloudSyncFolder { get; set; }
+
+    /// <summary>Folder the Installer watches for new downloads; the user's Downloads folder when null.</summary>
+    public string? DownloadsFolder { get; set; }
 }

@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using VPinCommander.Core.Services.Installer;
+using VPinCommander.Core.Settings;
 
 namespace VPinCommander.App.ViewModels;
 
@@ -13,13 +15,15 @@ public partial class InstallerViewModel : PageViewModel
         { ".zip", ".vpx", ".vpt", ".fp", ".directb2s", ".pac", ".vni", ".pal", ".crz" };
 
     private readonly IContentInstaller _installer;
+    private readonly ISettingsService _settingsService;
+    private FileSystemWatcher? _watcher;
 
     public override string Title => "Installer";
 
     public ObservableCollection<InstallItem> Items { get; } = new();
 
     [ObservableProperty] private string _status =
-        "Download content with your browser, then add the files here — each piece is installed to its proper folder.";
+        "Download content with your browser — new downloads are detected automatically, or add files manually. Each piece is installed to its proper folder.";
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
@@ -27,9 +31,59 @@ public partial class InstallerViewModel : PageViewModel
     [NotifyCanExecuteChangedFor(nameof(ScanDownloadsCommand))]
     private bool _isBusy;
 
-    public InstallerViewModel(IContentInstaller installer)
+    public InstallerViewModel(IContentInstaller installer, ISettingsService settingsService)
     {
         _installer = installer;
+        _settingsService = settingsService;
+        RestartWatcher();
+    }
+
+    public override Task OnActivatedAsync()
+    {
+        RestartWatcher(); // picks up a changed downloads-folder setting
+        return Task.CompletedTask;
+    }
+
+    private string ResolveWatchFolder()
+    {
+        var configured = _settingsService.Load().DownloadsFolder;
+        if (!string.IsNullOrWhiteSpace(configured) && Directory.Exists(configured))
+            return configured;
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+    }
+
+    private void RestartWatcher()
+    {
+        var folder = ResolveWatchFolder();
+        if (_watcher?.Path.Equals(folder, StringComparison.OrdinalIgnoreCase) == true)
+            return;
+
+        _watcher?.Dispose();
+        _watcher = null;
+        if (!Directory.Exists(folder))
+            return;
+
+        _watcher = new FileSystemWatcher(folder);
+        _watcher.Created += OnFileAppeared;
+        _watcher.Renamed += OnFileAppeared; // browsers rename .crdownload/.part into the real name
+        _watcher.EnableRaisingEvents = true;
+    }
+
+    private void OnFileAppeared(object sender, FileSystemEventArgs e)
+    {
+        if (!CandidateExtensions.Contains(Path.GetExtension(e.FullPath), StringComparer.OrdinalIgnoreCase))
+            return;
+
+        _ = Application.Current.Dispatcher.InvokeAsync(async () =>
+        {
+            if (Items.Any(i => i.SourcePath.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase)))
+                return;
+            await Task.Delay(TimeSpan.FromSeconds(2)); // let the browser finish writing
+            if (!File.Exists(e.FullPath) || IsBusy)
+                return;
+            await AnalyzeAndAddAsync(new[] { e.FullPath });
+            Status = $"Detected new download: {Path.GetFileName(e.FullPath)}. " + Status;
+        });
     }
 
     [RelayCommand(CanExecute = nameof(NotBusy))]
@@ -50,10 +104,10 @@ public partial class InstallerViewModel : PageViewModel
     [RelayCommand(CanExecute = nameof(NotBusy))]
     private async Task ScanDownloadsAsync()
     {
-        var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        var downloads = ResolveWatchFolder();
         if (!Directory.Exists(downloads))
         {
-            Status = "No Downloads folder found.";
+            Status = $"The downloads folder does not exist: {downloads}";
             return;
         }
 

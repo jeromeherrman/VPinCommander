@@ -9,7 +9,8 @@ public sealed record UpdateCandidate(
     string? LocalVersion,
     string? RemoteVersion,
     DateTime? RemoteUpdatedUtc,
-    string? Url);
+    string? Url,
+    string? ImageUrl = null);
 
 public sealed class UpdateCheckResult
 {
@@ -75,7 +76,8 @@ public static partial class UpdateMatcher
                     table.TableVersion,
                     latest.Version,
                     latest.UpdatedAt is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms).UtcDateTime : null,
-                    latest.Urls?.FirstOrDefault(u => u.Broken != true)?.Url));
+                    latest.Urls?.FirstOrDefault(u => u.Broken != true)?.Url,
+                    latest.ImgUrl ?? game.ImgUrl));
             }
         }
 

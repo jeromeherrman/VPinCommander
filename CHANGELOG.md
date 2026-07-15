@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- The main window now has two tabs: "My Cabinet" (inventory, health, front-ends, settings) and "Downloads" (new table versions and the content installer).
+- The Updates list shows preview thumbnails from the VPS database.
+- The Installer watches a configurable downloads folder (Settings; defaults to your Windows Downloads folder) and adds new tables/media automatically as they finish downloading.
+
 ## 0.2.0 — 2026-07-14
 
 ### Added

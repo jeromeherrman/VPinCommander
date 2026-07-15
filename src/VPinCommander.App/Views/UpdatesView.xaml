@@ -24,6 +24,17 @@
               GridLinesVisibility="Horizontal"
               HeadersVisibility="Column">
       <DataGrid.Columns>
+        <DataGridTemplateColumn Header="Preview" Width="96" IsReadOnly="True">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Border Height="54" Width="88" Background="#11000000" CornerRadius="3" Margin="2">
+                <!-- WPF fetches web images asynchronously; a broken URL just leaves the placeholder. -->
+                <Image Source="{Binding ImageUrl, IsAsync=True, TargetNullValue={x:Null}}"
+                       Stretch="UniformToFill" />
+              </Border>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
         <DataGridTextColumn Header="Table" Binding="{Binding TableName}" Width="2*" />
         <DataGridTextColumn Header="Installed" Binding="{Binding LocalVersion}" Width="Auto" />
         <DataGridTextColumn Header="Latest (VPS)" Binding="{Binding RemoteVersion}" Width="Auto" />
