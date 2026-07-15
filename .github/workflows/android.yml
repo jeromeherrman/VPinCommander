@@ -1,0 +1,57 @@
+name: Android
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: 17
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Publish APK
+        run: >
+          dotnet publish src/VPinCommander.Mobile -f net8.0-android -c Release
+          -o publish-android
+
+      - name: Collect APK
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem publish-android -Filter *-Signed.apk | Select-Object -First 1
+          if ($null -eq $apk) { $apk = Get-ChildItem publish-android -Filter *.apk | Select-Object -First 1 }
+          $name = "VPinCommander-${{ github.ref_name }}-android.apk"
+          if ('${{ github.event_name }}' -ne 'push') { $name = "VPinCommander-android.apk" }
+          Copy-Item $apk.FullName $name
+          "APK_NAME=$name" | Out-File $env:GITHUB_ENV -Append
+
+      - name: Attach APK to release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.ref_name }}" "${{ env.APK_NAME }}" --clobber
+
+      - name: Upload artifact (manual runs)
+        if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: ${{ env.APK_NAME }}

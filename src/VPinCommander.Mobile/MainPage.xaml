@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:VPinCommander.Mobile"
+             xmlns:remote="clr-namespace:VPinCommander.Core.Remote;assembly=VPinCommander.Core"
+             xmlns:health="clr-namespace:VPinCommander.Core.Health;assembly=VPinCommander.Core"
+             x:Class="VPinCommander.Mobile.MainPage"
+             x:DataType="local:CabinetsPageViewModel"
+             Title="VPin Commander">
+
+  <ScrollView>
+    <VerticalStackLayout Padding="16" Spacing="10">
+
+      <Label Text="Cabinets" FontSize="20" FontAttributes="Bold" />
+
+      <CollectionView ItemsSource="{Binding Cabinets}"
+                      SelectionMode="Single"
+                      SelectedItem="{Binding SelectedCabinet, Mode=TwoWay}"
+                      HeightRequest="140">
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="remote:RemoteCabinet">
+            <VerticalStackLayout Padding="8,6">
+              <Label Text="{Binding Name}" FontAttributes="Bold" />
+              <Label Text="{Binding BaseUrl}" FontSize="12" TextColor="Gray" />
+            </VerticalStackLayout>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+        <CollectionView.EmptyView>
+          <Label Text="No cabinets yet — add one below." TextColor="Gray" />
+        </CollectionView.EmptyView>
+      </CollectionView>
+
+      <Frame Padding="12" BorderColor="#DDDDDD">
+        <VerticalStackLayout Spacing="6">
+          <Label Text="{Binding Summary}" FontSize="15" />
+          <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+          <HorizontalStackLayout Spacing="10">
+            <Button Text="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Text="Run scan" Command="{Binding RunScanCommand}" />
+          </HorizontalStackLayout>
+          <HorizontalStackLayout Spacing="10">
+            <Picker ItemsSource="{Binding ImportSources}"
+                    SelectedItem="{Binding SelectedImportSource}"
+                    WidthRequest="140" />
+            <Button Text="Import" Command="{Binding ImportCommand}" />
+          </HorizontalStackLayout>
+        </VerticalStackLayout>
+      </Frame>
+
+      <Label Text="Health findings" FontSize="16" FontAttributes="Bold" />
+      <CollectionView ItemsSource="{Binding Findings}" HeightRequest="260">
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="health:HealthFinding">
+            <VerticalStackLayout Padding="4,4">
+              <Label FontSize="13" FontAttributes="Bold">
+                <Label.Text>
+                  <MultiBinding StringFormat="{}{0} — {1}">
+                    <Binding Path="Category" />
+                    <Binding Path="Item" />
+                  </MultiBinding>
+                </Label.Text>
+              </Label>
+              <Label Text="{Binding Detail}" FontSize="11" TextColor="Gray" LineBreakMode="WordWrap" />
+            </VerticalStackLayout>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+        <CollectionView.EmptyView>
+          <Label Text="No findings loaded." TextColor="Gray" />
+        </CollectionView.EmptyView>
+      </CollectionView>
+
+      <Label Text="Add a cabinet" FontSize="16" FontAttributes="Bold" />
+      <Entry Placeholder="Name" Text="{Binding NewName}" />
+      <Entry Placeholder="Address (http://cabinet-pc:5588)" Text="{Binding NewUrl}" Keyboard="Url" />
+      <Entry Placeholder="API key (from the cabinet's Settings page)" Text="{Binding NewApiKey}" />
+      <HorizontalStackLayout Spacing="10">
+        <Button Text="Add" Command="{Binding AddCommand}" />
+        <Button Text="Remove selected" Command="{Binding RemoveCommand}" />
+      </HorizontalStackLayout>
+
+      <Label Text="{Binding Status}" FontSize="12" TextColor="Gray" LineBreakMode="WordWrap" />
+
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>

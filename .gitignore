@@ -3,6 +3,8 @@
 [Oo]bj/
 [Oo]ut/
 artifacts/
+publish/
+publish-android/
 
 # Visual Studio / Rider / VS Code
 .vs/

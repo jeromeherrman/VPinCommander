@@ -15,6 +15,7 @@ VPin Commander scans your cabinet, builds a full inventory of your tables, ROMs,
 | Health | Health reports, DOF/rumble support detection |
 | Integration | PinUP Popper integration, PinballX integration |
 | Data | SQLite database, Excel export, backup/restore, optional cloud synchronization |
+| Remote | Client/server cabinet management, content push, HTTPS pairing, Android companion app |
 
 ## Requirements
 
