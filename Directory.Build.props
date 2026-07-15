@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
     <Product>VPin Commander</Product>
     <Authors>VPin Commander contributors</Authors>
     <Copyright>Copyright (c) 2026 VPin Commander contributors</Copyright>

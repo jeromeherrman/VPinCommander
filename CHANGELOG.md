@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-07-15
 
 ### Added
 - Android client (.NET MAUI): manage your cabinets from a phone — cabinet list, live status and health findings, remote scan and front-end imports. Reuses the same client/pairing code as the desktop (API key + HTTPS fingerprint pinning). Sideloadable APK attached to releases.
