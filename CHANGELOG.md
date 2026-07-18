@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 — 2026-07-15
 
 ### Added
 - Cabinet web UI: the remote-control server now serves a browser interface at its root (`http://<cabinet>:5588/`) — status, searchable tables, health findings, remote scan and imports, and drag-free file upload/install, from any phone, tablet, or computer with no install. The page itself is public; every operation still requires the API key, entered once and stored in the browser.
