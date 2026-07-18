@@ -7,10 +7,15 @@
       <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
         <Button Content="Check for updates" Command="{Binding CheckCommand}"
                 Padding="20,10" FontWeight="SemiBold" />
+        <Button Content="Browse all tables" Command="{Binding BrowseAllCommand}"
+                Padding="20,10" Margin="12,0,0,0" FontWeight="SemiBold" />
         <Button Content="Refresh catalog &amp; check" Command="{Binding ForceCheckCommand}"
                 Padding="14,10" Margin="12,0,0,0" />
         <Button Content="Open download page" Command="{Binding OpenLinkCommand}"
                 Padding="14,10" Margin="12,0,0,0" />
+        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 MinWidth="220" Padding="6" Margin="24,0,0,0" VerticalAlignment="Center"
+                 ToolTip="Search by table name" />
       </StackPanel>
     </StackPanel>
 

@@ -84,6 +84,57 @@ public static partial class UpdateMatcher
         return result;
     }
 
+    /// <summary>
+    /// Every game in the catalog with a VPX release, as browse rows: installed
+    /// tables carry their local version and path, everything else is available
+    /// to install fresh. Pure logic, no I/O.
+    /// </summary>
+    public static UpdateCheckResult BuildBrowseList(IReadOnlyList<GameTable> tables, IReadOnlyList<VpsGame> catalog)
+    {
+        var result = new UpdateCheckResult { CatalogGameCount = catalog.Count };
+
+        var localByTitle = new Dictionary<string, GameTable>(StringComparer.Ordinal);
+        foreach (var table in tables.Where(t => !t.IsMissing && t.Format == TableFormat.VisualPinballX))
+        {
+            var (title, _, _) = ParseStem(table.Name);
+            localByTitle.TryAdd(Normalize(title), table);
+        }
+
+        var rows = new List<UpdateCandidate>();
+        foreach (var game in catalog)
+        {
+            if (string.IsNullOrWhiteSpace(game.Name))
+                continue;
+
+            var latest = game.TableFiles?
+                .Where(f => string.Equals(f.TableFormat, "VPX", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(f => f.UpdatedAt ?? 0)
+                .FirstOrDefault();
+            if (latest is null)
+                continue; // browse only what can actually be installed on a VPX cabinet
+
+            var installed = localByTitle.TryGetValue(Normalize(game.Name), out var table) ? table : null;
+            if (installed is not null)
+                result.MatchedTables++;
+
+            var displayName = !string.IsNullOrWhiteSpace(game.Manufacturer) && game.Year is { } year
+                ? $"{game.Name} ({game.Manufacturer} {year})"
+                : game.Name!;
+
+            rows.Add(new UpdateCandidate(
+                displayName,
+                installed?.FilePath ?? string.Empty,
+                installed?.TableVersion,
+                latest.Version,
+                latest.UpdatedAt is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms).UtcDateTime : null,
+                latest.Urls?.FirstOrDefault(u => u.Broken != true)?.Url,
+                latest.ImgUrl ?? game.ImgUrl));
+        }
+
+        result.Updates.AddRange(rows.OrderBy(r => r.TableName, StringComparer.OrdinalIgnoreCase));
+        return result;
+    }
+
     internal static (string Title, string? Manufacturer, int? Year) ParseStem(string stem)
     {
         var match = StemRegex().Match(stem);

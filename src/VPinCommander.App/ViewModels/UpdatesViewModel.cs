@@ -10,6 +10,9 @@ public partial class UpdatesViewModel : PageViewModel
 {
     private readonly IUpdateChecker _checker;
 
+    private IReadOnlyList<UpdateCandidate> _allRows = Array.Empty<UpdateCandidate>();
+    private bool _browseMode;
+
     public override string Title => "Updates";
 
     public ObservableCollection<UpdateCandidate> Updates { get; } = new();
@@ -17,9 +20,12 @@ public partial class UpdatesViewModel : PageViewModel
     [ObservableProperty] private string _status =
         "Compares your tables against the community Virtual Pinball Spreadsheet database (vpsdb).";
 
+    [ObservableProperty] private string _searchText = string.Empty;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CheckCommand))]
     [NotifyCanExecuteChangedFor(nameof(ForceCheckCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BrowseAllCommand))]
     private bool _isChecking;
 
     [ObservableProperty]
@@ -31,25 +37,32 @@ public partial class UpdatesViewModel : PageViewModel
         _checker = checker;
     }
 
-    [RelayCommand(CanExecute = nameof(CanCheck))]
-    private Task CheckAsync() => RunCheckAsync(forceRefresh: false);
+    partial void OnSearchTextChanged(string value) => ApplyFilter();
 
     [RelayCommand(CanExecute = nameof(CanCheck))]
-    private Task ForceCheckAsync() => RunCheckAsync(forceRefresh: true);
+    private Task CheckAsync() => RunAsync(browse: false, forceRefresh: false);
+
+    [RelayCommand(CanExecute = nameof(CanCheck))]
+    private Task ForceCheckAsync() => RunAsync(browse: false, forceRefresh: true);
+
+    [RelayCommand(CanExecute = nameof(CanCheck))]
+    private Task BrowseAllAsync() => RunAsync(browse: true, forceRefresh: false);
 
     private bool CanCheck() => !IsChecking;
 
-    private async Task RunCheckAsync(bool forceRefresh)
+    private async Task RunAsync(bool browse, bool forceRefresh)
     {
         IsChecking = true;
         try
         {
-            Status = "Checking the VPS database…";
-            var result = await _checker.CheckAsync(forceRefresh);
+            Status = browse ? "Loading the VPS catalog…" : "Checking the VPS database…";
+            var result = browse
+                ? await _checker.BrowseAsync(forceRefresh)
+                : await _checker.CheckAsync(forceRefresh);
 
-            Updates.Clear();
-            foreach (var update in result.Updates.OrderBy(u => u.TableName, StringComparer.OrdinalIgnoreCase))
-                Updates.Add(update);
+            _browseMode = browse;
+            _allRows = result.Updates;
+            ApplyFilter();
 
             if (result.Errors.Count > 0 && result.CatalogGameCount == 0)
             {
@@ -58,18 +71,36 @@ public partial class UpdatesViewModel : PageViewModel
             }
 
             var fetched = result.CatalogFetchedUtc?.ToLocalTime().ToString("g") ?? "unknown";
-            Status = $"{result.Updates.Count} possible updates. Matched {result.MatchedTables} of your tables "
-                     + $"against {result.CatalogGameCount} VPS games ({result.ComparableTables} with comparable versions). "
-                     + $"Catalog from {fetched}.";
+            Status = browse
+                ? $"{result.Updates.Count} installable tables in the VPS catalog, {result.MatchedTables} already on this cabinet. "
+                  + $"Select one and open its download page, then install via the Installer. Catalog from {fetched}."
+                : $"{result.Updates.Count} possible updates. Matched {result.MatchedTables} of your tables "
+                  + $"against {result.CatalogGameCount} VPS games ({result.ComparableTables} with comparable versions). "
+                  + $"Catalog from {fetched}.";
         }
         catch (Exception ex)
         {
-            Status = $"Update check failed: {ex.Message}";
+            Status = $"{(browse ? "Catalog load" : "Update check")} failed: {ex.Message}";
         }
         finally
         {
             IsChecking = false;
         }
+    }
+
+    private void ApplyFilter()
+    {
+        var query = SearchText.Trim();
+        IEnumerable<UpdateCandidate> filtered = _allRows;
+        if (query.Length > 0)
+            filtered = filtered.Where(r => r.TableName.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+        Updates.Clear();
+        foreach (var row in filtered)
+            Updates.Add(row);
+
+        if (_browseMode && query.Length > 0)
+            Status = $"{Updates.Count} of {_allRows.Count} catalog tables match \"{query}\".";
     }
 
     [RelayCommand(CanExecute = nameof(CanOpenLink))]

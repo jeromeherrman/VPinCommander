@@ -26,7 +26,16 @@ public sealed class VpsUpdateChecker : IUpdateChecker
         _cachePath = cachePath ?? Path.Combine(AppPaths.DataFolder, "vpsdb-cache.json");
     }
 
-    public async Task<UpdateCheckResult> CheckAsync(bool forceRefresh = false, CancellationToken ct = default)
+    public Task<UpdateCheckResult> CheckAsync(bool forceRefresh = false, CancellationToken ct = default) =>
+        RunAsync(forceRefresh, UpdateMatcher.FindUpdates, ct);
+
+    public Task<UpdateCheckResult> BrowseAsync(bool forceRefresh = false, CancellationToken ct = default) =>
+        RunAsync(forceRefresh, UpdateMatcher.BuildBrowseList, ct);
+
+    private async Task<UpdateCheckResult> RunAsync(
+        bool forceRefresh,
+        Func<IReadOnlyList<Core.Models.GameTable>, IReadOnlyList<VpsGame>, UpdateCheckResult> build,
+        CancellationToken ct)
     {
         string json;
         DateTime fetchedUtc;
@@ -54,7 +63,7 @@ public sealed class VpsUpdateChecker : IUpdateChecker
         }
 
         var tables = await _store.GetTablesAsync(ct);
-        var result = UpdateMatcher.FindUpdates(tables, catalog);
+        var result = build(tables, catalog);
         result.CatalogFetchedUtc = fetchedUtc;
         return result;
     }

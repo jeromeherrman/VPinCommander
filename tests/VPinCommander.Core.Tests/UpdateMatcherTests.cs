@@ -68,6 +68,49 @@ public class UpdateMatcherTests
     }
 
     [Fact]
+    public void Browse_list_contains_every_vpx_game_annotated_with_installed_state()
+    {
+        var installedGame = Game("Attack From Mars", "Bally", 1995, VpxFile("2.1", imgUrl: "https://img/afm.webp"));
+        var freshGame = Game("Medieval Madness", "Williams", 1997, VpxFile("3.0"));
+        var fpOnlyGame = Game("Future Only", "Original", 2020); // no VPX file -> excluded
+        fpOnlyGame.TableFiles = new List<VpsTableFile> { new() { Version = "1.0", TableFormat = "FP" } };
+
+        var result = UpdateMatcher.BuildBrowseList(
+            new[] { Vpx("Attack From Mars (Bally 1995)", "2.0") },
+            new[] { installedGame, freshGame, fpOnlyGame });
+
+        Assert.Equal(2, result.Updates.Count); // FP-only game excluded
+        Assert.Equal(1, result.MatchedTables);
+
+        var installed = result.Updates.Single(r => r.TableName.StartsWith("Attack"));
+        Assert.Equal("2.0", installed.LocalVersion);
+        Assert.NotEqual(string.Empty, installed.FilePath);
+        Assert.Equal("2.1", installed.RemoteVersion);
+        Assert.Equal("https://img/afm.webp", installed.ImageUrl);
+
+        var fresh = result.Updates.Single(r => r.TableName.StartsWith("Medieval"));
+        Assert.Equal("Medieval Madness (Williams 1997)", fresh.TableName);
+        Assert.Null(fresh.LocalVersion);
+        Assert.Equal(string.Empty, fresh.FilePath);
+        Assert.Equal("3.0", fresh.RemoteVersion);
+    }
+
+    [Fact]
+    public void Browse_list_is_sorted_by_name()
+    {
+        var result = UpdateMatcher.BuildBrowseList(
+            Array.Empty<GameTable>(),
+            new[]
+            {
+                Game("Zeta", "X", 2000, VpxFile("1.0")),
+                Game("Alpha", "X", 2000, VpxFile("1.0")),
+            });
+
+        Assert.StartsWith("Alpha", result.Updates[0].TableName);
+        Assert.StartsWith("Zeta", result.Updates[1].TableName);
+    }
+
+    [Fact]
     public void Equal_versions_are_not_flagged_even_with_v_prefix()
     {
         var result = UpdateMatcher.FindUpdates(
