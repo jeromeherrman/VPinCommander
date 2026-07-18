@@ -89,6 +89,14 @@ public sealed class CabinetApiServer : IAsyncDisposable
 
             app.Use(async (context, next) =>
             {
+                // The web UI shell is public (a browser must be able to load it);
+                // it holds no data — every /api call still requires the key.
+                if (context.Request.Path == "/")
+                {
+                    await next();
+                    return;
+                }
+
                 if (!context.Request.Headers.TryGetValue(CabinetClient.ApiKeyHeader, out var provided)
                     || provided != apiKey)
                 {
@@ -127,9 +135,21 @@ public sealed class CabinetApiServer : IAsyncDisposable
 
     public ValueTask DisposeAsync() => new(StopAsync());
 
+    private static readonly string WebUiHtml = LoadEmbeddedText("VPinCommander.Server.WebUi.index.html");
+
+    private static string LoadEmbeddedText(string resourceName)
+    {
+        using var stream = typeof(CabinetApiServer).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Embedded resource not found: {resourceName}");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     private void MapEndpoints(WebApplication app)
     {
         var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "dev";
+
+        app.MapGet("/", () => Results.Content(WebUiHtml, "text/html; charset=utf-8"));
 
         app.MapGet("/api/status", async (CancellationToken ct) =>
             new CabinetStatus(Environment.MachineName, version, await _store.GetStatsAsync(ct)));

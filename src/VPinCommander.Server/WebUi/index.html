@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VPin Commander</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #16161f; color: #d8d8e2; }
+  header { background: #1e1e2e; padding: 14px 20px; display: flex; align-items: baseline; gap: 12px; }
+  header h1 { margin: 0; font-size: 20px; color: #f0c040; }
+  header .sub { color: #9a9aae; font-size: 13px; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  .card { background: #1e1e2e; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 10px; font-size: 16px; color: #fff; }
+  label { font-size: 13px; color: #9a9aae; display: block; margin-bottom: 4px; }
+  input, select { background: #26263a; color: #fff; border: 1px solid #3a3a52; border-radius: 6px; padding: 9px 10px; font-size: 14px; width: 100%; }
+  input:focus, select:focus { outline: none; border-color: #f0c040; }
+  button { background: #406080; color: #fff; border: 0; border-radius: 6px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: #4d739a; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: #f0c040; color: #1e1e2e; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  .row > div { flex: 1; min-width: 140px; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; }
+  .stat { background: #26263a; border-radius: 8px; padding: 12px 18px; min-width: 110px; }
+  .stat .n { font-size: 26px; font-weight: 700; color: #fff; }
+  .stat .l { font-size: 12px; color: #9a9aae; }
+  .stat.err .n { color: #e07060; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: #9a9aae; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid #3a3a52; }
+  td { padding: 6px 8px; border-bottom: 1px solid #26263a; }
+  .sev-2 { color: #e07060; } .sev-1 { color: #e0a850; } .sev-0 { color: #9a9aae; }
+  #status { color: #9a9aae; font-size: 13px; margin-top: 10px; min-height: 18px; white-space: pre-wrap; }
+  .scroll { max-height: 340px; overflow-y: auto; }
+  [hidden] { display: none !important; }
+  @media (max-width: 600px) { .stat { min-width: 45%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>VPin Commander</h1>
+  <span class="sub" id="machine"></span>
+</header>
+<main>
+  <div class="card" id="connectCard">
+    <h2>Connect to this cabinet</h2>
+    <div class="row">
+      <div>
+        <label for="apiKey">API key (from the cabinet's Settings page)</label>
+        <input id="apiKey" type="password" autocomplete="current-password" placeholder="API key">
+      </div>
+      <div style="flex:0">
+        <button class="primary" id="connectBtn">Connect</button>
+      </div>
+    </div>
+    <div id="connectStatus" style="color:#e07060;font-size:13px;margin-top:8px"></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="card">
+      <h2>Cabinet status</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="card">
+      <h2>Actions</h2>
+      <div class="row">
+        <div style="flex:0"><button id="scanBtn">Run scan</button></div>
+        <div style="flex:0">
+          <select id="importSource">
+            <option value="popper">PinUP Popper</option>
+            <option value="pinballx">PinballX</option>
+            <option value="pinbally">PinballY</option>
+          </select>
+        </div>
+        <div style="flex:0"><button id="importBtn">Import</button></div>
+        <div><input id="uploadFiles" type="file" multiple></div>
+        <div style="flex:0"><button id="uploadBtn">Upload &amp; install</button></div>
+        <div style="flex:0"><button id="refreshBtn">Refresh</button></div>
+      </div>
+      <div id="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Tables</h2>
+      <input id="tableSearch" placeholder="Search tables…" style="margin-bottom:10px">
+      <div class="scroll"><table>
+        <thead><tr><th>Name</th><th>ROM</th><th>Version</th><th>Author</th></tr></thead>
+        <tbody id="tablesBody"></tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h2>Health</h2>
+      <select id="sevFilter" style="max-width:200px;margin-bottom:10px">
+        <option value="">All severities</option>
+        <option value="2">Errors</option>
+        <option value="1">Warnings</option>
+        <option value="0">Info</option>
+      </select>
+      <div class="scroll"><table>
+        <thead><tr><th>Severity</th><th>Category</th><th>Item</th><th>Detail</th></tr></thead>
+        <tbody id="healthBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</main>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const SEV = ["Info", "Warning", "Error"];
+let apiKey = localStorage.getItem("vpc-key") || "";
+let allTables = [], allFindings = [];
+
+async function api(path, opts = {}) {
+  opts.headers = Object.assign({ "X-Api-Key": apiKey }, opts.headers || {});
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error("HTTP " + r.status + (r.status === 401 ? " — wrong API key?" : ""));
+  const ct = r.headers.get("content-type") || "";
+  return ct.includes("json") ? r.json() : null;
+}
+
+function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : s; return d.innerHTML; }
+
+async function connect() {
+  apiKey = $("#apiKey").value.trim();
+  $("#connectStatus").textContent = "Connecting…";
+  try {
+    await loadStatus();
+    localStorage.setItem("vpc-key", apiKey);
+    $("#connectCard").hidden = true;
+    $("#app").hidden = false;
+    await Promise.all([loadTables(), loadHealth()]);
+  } catch (e) {
+    $("#connectStatus").textContent = "Could not connect: " + e.message;
+  }
+}
+
+async function loadStatus() {
+  const s = await api("/api/status");
+  $("#machine").textContent = s.machineName + " · v" + s.appVersion;
+  const t = s.stats;
+  $("#stats").innerHTML =
+    stat(t.tables, "Tables") + stat(t.roms, "ROMs") + stat(t.mediaAssets, "Media") +
+    stat(t.frontEndGames, "Front-end games") + stat(t.missingFiles, "Missing files", t.missingFiles > 0);
+}
+function stat(n, l, err) { return `<div class="stat${err ? " err" : ""}"><div class="n">${n}</div><div class="l">${l}</div></div>`; }
+
+async function loadTables() {
+  allTables = await api("/api/tables");
+  renderTables();
+}
+function renderTables() {
+  const q = $("#tableSearch").value.toLowerCase();
+  const rows = allTables
+    .filter(t => !q || t.name.toLowerCase().includes(q) || (t.romName || "").toLowerCase().includes(q))
+    .map(t => `<tr><td>${esc(t.name)}</td><td>${esc(t.romName)}</td><td>${esc(t.tableVersion)}</td><td>${esc(t.author)}</td></tr>`);
+  $("#tablesBody").innerHTML = rows.join("") || `<tr><td colspan="4" style="color:#9a9aae">No tables.</td></tr>`;
+}
+
+async function loadHealth() {
+  allFindings = await api("/api/health");
+  renderHealth();
+}
+function renderHealth() {
+  const f = $("#sevFilter").value;
+  const rows = allFindings
+    .filter(x => f === "" || String(x.severity) === f)
+    .map(x => `<tr class="sev-${x.severity}"><td>${SEV[x.severity] || x.severity}</td><td>${esc(x.category)}</td><td>${esc(x.item)}</td><td>${esc(x.detail)}</td></tr>`);
+  $("#healthBody").innerHTML = rows.join("") || `<tr><td colspan="4" style="color:#9a9aae">No findings.</td></tr>`;
+}
+
+async function withBusy(btn, label, fn) {
+  const buttons = document.querySelectorAll("button");
+  buttons.forEach(b => b.disabled = true);
+  $("#status").textContent = label;
+  try { await fn(); }
+  catch (e) { $("#status").textContent = "Failed: " + e.message; return; }
+  finally { buttons.forEach(b => b.disabled = false); }
+}
+
+$("#connectBtn").onclick = connect;
+$("#refreshBtn").onclick = () => withBusy(null, "Refreshing…", async () => {
+  await Promise.all([loadStatus(), loadTables(), loadHealth()]);
+  $("#status").textContent = "Refreshed.";
+});
+$("#scanBtn").onclick = () => withBusy(null, "Scanning — this can take a while…", async () => {
+  const s = await api("/api/scan", { method: "POST" });
+  $("#status").textContent = `Scan complete: ${s.tables} tables, ${s.roms} ROMs, ${s.media} media files.`;
+  await Promise.all([loadStatus(), loadTables(), loadHealth()]);
+});
+$("#importBtn").onclick = () => withBusy(null, "Importing…", async () => {
+  const src = $("#importSource").value;
+  const s = await api("/api/import/" + src, { method: "POST" });
+  $("#status").textContent = `Imported ${s.games} games from ${s.source}` + (s.errors ? ` (${s.errors} warnings).` : ".");
+  await Promise.all([loadStatus(), loadHealth()]);
+});
+$("#uploadBtn").onclick = () => withBusy(null, "Uploading…", async () => {
+  const files = $("#uploadFiles").files;
+  if (!files.length) { $("#status").textContent = "Choose one or more downloaded files first."; return; }
+  const lines = [];
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    $("#status").textContent = `Uploading ${f.name} (${i + 1}/${files.length})…`;
+    try {
+      const r = await api("/api/install?fileName=" + encodeURIComponent(f.name), { method: "POST", body: f });
+      lines.push(`${f.name} → ${r.kind}: ${r.error || r.status || "done"}`);
+    } catch (e) {
+      lines.push(`${f.name}: failed — ${e.message}`);
+    }
+  }
+  $("#status").textContent = lines.join("\n") + "\nRun a scan to pick everything up.";
+});
+$("#tableSearch").oninput = renderTables;
+$("#sevFilter").onchange = renderHealth;
+
+if (apiKey) { $("#apiKey").value = apiKey; connect(); }
+</script>
+</body>
+</html>

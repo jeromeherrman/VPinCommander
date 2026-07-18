@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="WebUi\index.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VPinCommander.Core\VPinCommander.Core.csproj" />
     <ProjectReference Include="..\VPinCommander.Data\VPinCommander.Data.csproj" />
   </ItemGroup>

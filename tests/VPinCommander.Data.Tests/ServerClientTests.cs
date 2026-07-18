@@ -98,6 +98,30 @@ public sealed class ServerClientTests : IAsyncLifetime, IDisposable
     }
 
     [Fact]
+    public async Task Web_ui_is_served_at_root_without_an_api_key()
+    {
+        using var http = new HttpClient();
+
+        var response = await http.GetAsync(_cabinet.BaseUrl + "/");
+
+        response.EnsureSuccessStatusCode();
+        Assert.Contains("text/html", response.Content.Headers.ContentType?.MediaType);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("VPin Commander", html);
+        Assert.Contains("api/status", html); // the page drives the same API
+    }
+
+    [Fact]
+    public async Task Api_still_requires_the_key_even_though_the_web_ui_is_public()
+    {
+        using var http = new HttpClient();
+
+        var response = await http.GetAsync(_cabinet.BaseUrl + "/api/status");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Wrong_api_key_is_rejected_with_401()
     {
         var wrong = new RemoteCabinet { BaseUrl = _cabinet.BaseUrl, ApiKey = "nope" };

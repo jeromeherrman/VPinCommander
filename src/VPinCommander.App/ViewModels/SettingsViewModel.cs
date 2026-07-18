@@ -94,7 +94,8 @@ public partial class SettingsViewModel : PageViewModel
         }
 
         var scheme = _apiServer.CertificateFingerprint is null ? "http" : "https";
-        ServerStatusText = $"Running at {_apiServer.BoundUrl} — clients connect with {scheme}://<this-pc>:{ServerPortText} and the API key."
+        ServerStatusText = $"Running at {_apiServer.BoundUrl} — clients connect with {scheme}://<this-pc>:{ServerPortText} and the API key. "
+            + $"Web UI: open {scheme}://<this-pc>:{ServerPortText}/ in any browser."
             + (_apiServer.CertificateFingerprint is { } fingerprint
                 ? $" Certificate fingerprint (clients pin this automatically on first connect): {fingerprint[..16]}…"
                 : string.Empty);
