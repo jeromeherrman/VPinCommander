@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.8.0 — 2026-07-17
 
 ### Added
 - "Browse all tables" on the Downloads tab: the full VPS catalog of installable VPX tables (2,300+) with thumbnails, versions, and download links — installed tables annotated with their local version — plus a live search box.
