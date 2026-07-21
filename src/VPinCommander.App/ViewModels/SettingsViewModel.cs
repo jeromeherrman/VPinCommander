@@ -208,8 +208,8 @@ public partial class SettingsViewModel : PageViewModel
         try
         {
             var progress = new Progress<string>(message => AppUpdateStatusText = message);
-            var script = await _appUpdateService.DownloadAndPrepareAsync(update, progress);
-            if (script is null)
+            var prepared = await _appUpdateService.DownloadAndPrepareAsync(update, progress);
+            if (prepared is null)
             {
                 AppUpdateStatusText = update.ReleasePageUrl is { } page
                     ? $"Could not prepare the update automatically — download it manually: {page}"
@@ -217,10 +217,12 @@ public partial class SettingsViewModel : PageViewModel
                 return;
             }
 
-            Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{script}\"")
+            // The installer/script closes and relaunches the app itself; we just
+            // launch it detached and shut down so the files can be replaced.
+            Process.Start(new ProcessStartInfo(prepared.LaunchPath, prepared.Arguments)
             {
                 CreateNoWindow = true,
-                UseShellExecute = false,
+                UseShellExecute = prepared.Kind == UpdateApplyKind.Installer,
             });
             Application.Current.Shutdown();
         }

@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.8.0 — 2026-07-17
+## 0.9.0 — 2026-07-17
+
+### Added
+- Proper Windows installer (`VPinCommander-Setup-<version>.exe`): installs to Program Files (per-user, no admin prompt), adds a Start Menu shortcut and an optional desktop icon, and registers in Apps & Features for clean uninstall. The portable zip is still published for cabinets and portable use.
+
+### Fixed
+- Self-update overhauled. It now downloads and silently runs the new installer, which reliably closes the app, replaces the files, and relaunches — replacing the fragile copy-over-a-running-exe script that could fail (locked files, no relaunch). Releases without an installer still fall back to the staged-copy method. Verified end to end: install → run → silent update → relaunch.
 
 ### Added
 - "Browse all tables" on the Downloads tab: the full VPS catalog of installable VPX tables (2,300+) with thumbnails, versions, and download links — installed tables annotated with their local version — plus a live search box.

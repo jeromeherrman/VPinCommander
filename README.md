@@ -17,10 +17,13 @@ VPin Commander scans your cabinet, builds a full inventory of your tables, ROMs,
 | Data | SQLite database, Excel export, backup/restore, optional cloud synchronization |
 | Remote | Client/server cabinet management, content push, HTTPS pairing, Android companion app |
 
-## Requirements
+## Install
 
-- Windows 10/11
-- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
+Windows 10/11. No runtime to install — the builds are self-contained.
+
+- **Installer (recommended):** download `VPinCommander-Setup-<version>.exe` from the [latest release](https://github.com/jeromeherrman/VPinCommander/releases/latest) and run it. It installs per-user (no admin prompt), adds a Start Menu entry, and keeps itself up to date from within the app (Settings → Application updates).
+- **Portable / cabinet:** download `VPinCommander-<version>-win-x64.zip`, extract anywhere, and run `VPinCommander.exe`.
+- **Android companion:** `VPinCommander-<version>-android.apk`.
 
 ## Building from source
 

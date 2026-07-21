@@ -5,6 +5,7 @@
 artifacts/
 publish/
 publish-android/
+installer-out/
 
 # Visual Studio / Rider / VS Code
 .vs/

@@ -11,22 +11,38 @@ public class AppUpdateParserTests
           "html_url": "https://github.com/example/repo/releases/tag/v9.9.9",
           "assets": [
             { "name": "VPinCommander-v9.9.9-android.apk", "browser_download_url": "https://example/apk", "size": 100 },
+            { "name": "VPinCommander-Setup-v9.9.9.exe", "browser_download_url": "https://example/setup", "size": 90000 },
             { "name": "VPinCommander-v9.9.9-win-x64.zip", "browser_download_url": "https://example/zip", "size": 12345 }
           ]
         }
         """;
 
     [Fact]
-    public void Parses_tag_zip_asset_and_release_page()
+    public void Parses_tag_installer_zip_asset_and_release_page()
     {
         var update = AppUpdateParser.Parse(SampleRelease);
 
         Assert.NotNull(update);
         Assert.Equal(new Version(9, 9, 9), update!.Latest);
         Assert.Equal("v9.9.9", update.TagName);
+        Assert.Equal("https://example/setup", update.InstallerUrl); // the Setup.exe
         Assert.Equal("https://example/zip", update.ZipUrl); // apk must not be picked
         Assert.Equal(12345, update.ZipSize);
         Assert.Equal("https://github.com/example/repo/releases/tag/v9.9.9", update.ReleasePageUrl);
+    }
+
+    [Fact]
+    public void Release_without_an_installer_has_null_installer_url()
+    {
+        var update = AppUpdateParser.Parse("""
+            { "tag_name": "v1.0.0", "assets": [
+              { "name": "VPinCommander-v1.0.0-win-x64.zip", "browser_download_url": "https://example/zip", "size": 1 }
+            ] }
+            """);
+
+        Assert.NotNull(update);
+        Assert.Null(update!.InstallerUrl);
+        Assert.Equal("https://example/zip", update.ZipUrl);
     }
 
     [Fact]
