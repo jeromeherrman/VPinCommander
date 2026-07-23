@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.1 — 2026-07-17
 
 ### Added
 - In-app **Help** page (sidebar) with topic-by-topic guidance, plus a full [user guide](docs/USER_GUIDE.md) covering first-run setup through remote cabinet management.
