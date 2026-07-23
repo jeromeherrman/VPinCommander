@@ -33,9 +33,10 @@ public partial class MainViewModel : ObservableObject
         PinballXViewModel pinballX,
         PinballYViewModel pinballY,
         SettingsViewModel settings,
+        HelpViewModel help,
         IAppUpdateService appUpdateService)
     {
-        Pages = new PageViewModel[] { dashboard, tables, media, roms, health, popper, pinballX, pinballY, settings };
+        Pages = new PageViewModel[] { dashboard, tables, media, roms, health, popper, pinballX, pinballY, settings, help };
         Updates = updates;
         Installer = installer;
         Cabinets = cabinets;

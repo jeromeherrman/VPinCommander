@@ -90,6 +90,7 @@ public partial class App : Application
                 services.AddSingleton<InstallerViewModel>();
                 services.AddSingleton<CabinetsViewModel>();
                 services.AddSingleton<SettingsViewModel>();
+                services.AddSingleton<HelpViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();
             })

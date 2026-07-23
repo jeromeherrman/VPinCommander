@@ -25,6 +25,10 @@ Windows 10/11. No runtime to install — the builds are self-contained.
 - **Portable / cabinet:** download `VPinCommander-<version>-win-x64.zip`, extract anywhere, and run `VPinCommander.exe`.
 - **Android companion:** `VPinCommander-<version>-android.apk`.
 
+## Documentation
+
+- [User guide](docs/USER_GUIDE.md) — everyday use, from first run to remote management. The same material is on the in-app **Help** page.
+
 ## Building from source
 
 ```powershell
